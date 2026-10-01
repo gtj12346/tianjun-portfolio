@@ -7,7 +7,7 @@
 <meta name="description" content="Galaxy is the personal website of Tianjun Gao, building AI-powered products and workflows. Explore selected work in agent systems, research platforms, growth and GIS.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f7f6f2'/%3E%3Ccircle cx='32' cy='32' r='23' fill='%23ef402f'/%3E%3Cpath d='M32 9v46h23V9' fill='%23161616'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css?v=galaxy-18">
-<link rel="stylesheet" href="record-player.css?v=1">
+<link rel="stylesheet" href="record-player.css?v=2">
 </head>
 <body>
 <a class="skip" href="#work">Skip to work</a>
@@ -33,21 +33,15 @@
 <section id="contact" class="section contact"><p class="eyebrow">03 — SAY HELLO</p><h2>Good things start<br>with a conversation<span>.</span></h2><a class="email" href="mailto:gaotianjun319@gmail.com">gaotianjun319@gmail.com</a><button id="copy-email" type="button">Copy email</button><span id="copy-status" role="status"></span></section>
 </main><footer><a class="wordmark brand-wordmark" lang="en" href="#">Galaxy<span class="logo-dot"></span></a><p>A human point of view.</p><span>© 2026 Tianjun Gao</span><a href="Tianjun-Gao-Resume.pdf" target="_blank" rel="noopener">Résumé (PDF)</a><a href="#">Back to top</a></footer><div class="color-bar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 <aside class="record-player" aria-label="Music corner" data-record-player>
-  <button class="record-toggle" type="button" aria-expanded="false" aria-controls="record-panel">
-    <span class="turntable" aria-hidden="true"><span class="vinyl"><span class="vinyl-label">A</span></span><span class="tonearm"></span></span>
-    <span class="record-toggle-copy"><span class="record-kicker" data-record-text="kicker">ON MY TURNTABLE</span><strong data-record-text="invite">Put a record on</strong></span>
-    <span class="record-toggle-mark" aria-hidden="true">＋</span>
+  <button class="record-toggle" type="button" aria-label="Play 航海" aria-pressed="false" aria-controls="record-audio">
+    <span class="turntable" aria-hidden="true"><span class="vinyl"><span class="vinyl-label"></span></span><span class="tonearm"></span></span>
+    <span class="record-toggle-copy"><span class="record-kicker">ON MY TURNTABLE</span><strong lang="zh-Hant">航海</strong><span class="record-state">Click to listen</span></span>
+    <span class="record-action" aria-hidden="true"><span class="record-toggle-mark"></span><span class="record-time">0:00</span></span>
   </button>
-  <div id="record-panel" class="record-panel" hidden>
-    <div class="record-tracks" role="group" aria-label="Choose a record">
-      <button type="button" class="record-track" data-record="0" aria-pressed="true"><span class="record-side">A</span><span><strong>Paradise City</strong><small>Guns N’ Roses</small></span><span class="record-selected" aria-hidden="true">●</span></button>
-      <button type="button" class="record-track" data-record="1" aria-pressed="false"><span class="record-side">B</span><span><strong data-record-text="tree">Tree</strong><small data-record-text="hedgehog">Hedgehog</small></span><span class="record-selected" aria-hidden="true">●</span></button>
-    </div>
-    <p class="record-instruction" role="status" data-record-status>Press play in the player below.</p>
-    <div class="record-embed"></div>
-    <div class="record-footer"><p data-record-text="note">Free preview. Sign in with an Apple Music subscription for full tracks.</p><a class="record-external" href="https://music.apple.com/us/album/paradise-city/1377826053?i=1377826748" target="_blank" rel="noopener noreferrer"><span data-record-text="external">Open in Apple Music</span> ↗</a></div>
-  </div>
+  <div class="record-progress" aria-hidden="true"><span></span></div>
+  <span class="sr-only" role="status" data-record-status></span>
+  <audio id="record-audio" src="assets/music/hanghai.mp3" preload="none"></audio>
 </aside>
 <script src="app.js?v=galaxy-18"></script>
-<script src="record-player.js?v=1"></script>
+<script src="record-player.js?v=2"></script>
 </body></html>

@@ -1,82 +1,77 @@
 (() => {
   const root = document.querySelector('[data-record-player]');
   const toggle = root.querySelector('.record-toggle');
-  const panel = root.querySelector('.record-panel');
-  const embed = root.querySelector('.record-embed');
+  const audio = root.querySelector('audio');
   const status = root.querySelector('[data-record-status]');
-  const external = root.querySelector('.record-external');
-  const tracks = [
-    {name: 'Paradise City — Guns N’ Roses', url: 'https://music.apple.com/us/album/paradise-city/1377826053?i=1377826748'},
-    {name: '樹 — 刺蝟', url: 'https://music.apple.com/cn/album/1808900373?i=1808900389'}
-  ];
+  const clock = root.querySelector('.record-time');
+  const progress = root.querySelector('.record-progress span');
   const copy = {
-    en: {kicker:'ON MY TURNTABLE', invite:'Put a record on', tree:'Tree', hedgehog:'Hedgehog', note:'Free preview. Sign in with an Apple Music subscription for full tracks.', external:'Open in Apple Music', loading:'Loading the player…', ready:'Press ▶ in the player below to listen.', slow:'Taking a while? Try the Apple Music link below.', open:'Open the record player', close:'Close the record player and stop audio', group:'Choose a record', region:'Music corner'},
-    zh: {kicker:'在我的唱盤上', invite:'放一張唱片', tree:'樹', hedgehog:'刺蝟', note:'免登入試聽片段；登入 Apple Music 訂閱帳號可聽完整歌曲。', external:'前往 Apple Music', loading:'正在載入播放器…', ready:'點下方播放器的 ▶，聽一會兒。', slow:'載入較久？也可以用下方連結開啟 Apple Music。', open:'打開唱片機', close:'收起唱片機並停止聲音', group:'選一張唱片', region:'音樂角落'}
+    en: {kicker:'ON MY TURNTABLE', idle:'Click to listen', loading:'Loading · click to pause', playing:'Playing · click to pause', paused:'Paused · click to resume', ended:'Play it again', error:'Couldn’t load · click to retry', play:'Play 航海', pause:'Pause 航海', region:'Music corner'},
+    zh: {kicker:'在我的唱盤上', idle:'點一下，聽一會兒', loading:'載入中 · 點擊可暫停', playing:'播放中 · 點擊暫停', paused:'已暫停 · 點擊繼續', ended:'再聽一遍', error:'載入失敗 · 點擊重試', play:'播放《航海》', pause:'暫停《航海》', region:'音樂角落'}
   };
-  let selected = 0;
-  let state = 'ready';
-  let timer;
-  const locale = () => document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-  function translate() {
-    const text = copy[locale()];
-    root.querySelectorAll('[data-record-text]').forEach(el => el.textContent = text[el.dataset.recordText]);
+  let state = 'idle';
+  let wantsPlayback = false;
+  let request = 0;
+  audio.volume = 0.65;
+  function render() {
+    const text = copy[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'];
+    root.querySelector('.record-kicker').textContent = text.kicker;
+    root.querySelector('.record-state').textContent = text[state];
     root.setAttribute('aria-label', text.region);
-    root.querySelector('.record-tracks').setAttribute('aria-label', text.group);
-    toggle.setAttribute('aria-label', panel.hidden ? text.open : text.close);
+    root.classList.toggle('is-playing', state === 'playing');
+    root.classList.toggle('is-active', wantsPlayback);
+    toggle.setAttribute('aria-label', wantsPlayback ? text.pause : text.play);
+    toggle.setAttribute('aria-pressed', String(wantsPlayback));
+    // Announce state changes, never the continuously changing playback time.
     status.textContent = text[state];
   }
-  function mountPlayer() {
-    clearTimeout(timer);
-    // Replacing the iframe stops the previous track, so audio never overlaps.
-    embed.replaceChildren();
-    state = 'loading';
-    external.href = tracks[selected].url;
-    const iframe = document.createElement('iframe');
-    iframe.title = `Apple Music — ${tracks[selected].name}`;
-    iframe.allow = 'autoplay *; encrypted-media *; fullscreen *; clipboard-write';
-    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-    iframe.src = tracks[selected].url.replace('://music.apple.com/', '://embed.music.apple.com/') + (locale() === 'zh' ? '&l=zh-Hant-TW' : '&l=en-US');
-    iframe.addEventListener('load', () => {
-      if (iframe !== embed.firstElementChild) return;
-      clearTimeout(timer);
-      state = 'ready';
-      translate();
-    });
-    embed.append(iframe);
-    timer = setTimeout(() => {state = 'slow'; translate();}, 15000);
-    translate();
-  }
-  function closePlayer() {
-    clearTimeout(timer);
-    embed.replaceChildren();
-    panel.hidden = true;
-    root.classList.remove('is-open');
-    toggle.setAttribute('aria-expanded', 'false');
-    root.querySelector('.record-toggle-mark').textContent = '＋';
-    translate();
+  function updateProgress() {
+    const time = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+    clock.textContent = `${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2,'0')}`;
+    progress.style.width = Number.isFinite(audio.duration) && audio.duration > 0 ? `${Math.min(100,time / audio.duration * 100)}%` : '0%';
   }
   toggle.addEventListener('click', () => {
-    if (!panel.hidden) {closePlayer(); return;}
-    panel.hidden = false;
-    root.classList.add('is-open');
-    toggle.setAttribute('aria-expanded', 'true');
-    root.querySelector('.record-toggle-mark').textContent = '−';
-    mountPlayer();
+    const currentRequest = ++request;
+    if (wantsPlayback || !audio.paused) {
+      wantsPlayback = false;
+      audio.pause();
+      state = audio.currentTime > 0 ? 'paused' : 'idle';
+      render();
+      return;
+    }
+    if (audio.error) audio.load();
+    if (audio.ended) audio.currentTime = 0;
+    wantsPlayback = true;
+    state = 'loading';
+    render();
+    // Keep play() in the click handler, preserving the browser's user gesture.
+    audio.play().catch(() => {
+      if (currentRequest !== request) return;
+      wantsPlayback = false;
+      state = 'error';
+      render();
+    });
   });
-  root.querySelectorAll('[data-record]').forEach(button => button.addEventListener('click', () => {
-    const next = Number(button.dataset.record);
-    if (next === selected) return;
-    selected = next;
-    root.dataset.side = String(selected);
-    root.querySelector('.vinyl-label').textContent = selected ? 'B' : 'A';
-    root.querySelectorAll('[data-record]').forEach(el => el.setAttribute('aria-pressed', String(Number(el.dataset.record) === selected)));
-    mountPlayer();
-  }));
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !panel.hidden) {event.preventDefault(); closePlayer(); toggle.focus();}
+  audio.addEventListener('playing', () => {
+    if (audio.paused) return;
+    wantsPlayback = true;
+    state = 'playing';
+    render();
   });
-  // Update our labels without reloading (and interrupting) an active music frame.
-  new MutationObserver(translate).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
-  window.addEventListener('pagehide', closePlayer);
-  translate();
+  audio.addEventListener('waiting', () => {
+    if (!audio.paused && wantsPlayback) {state = 'loading'; render();}
+  });
+  audio.addEventListener('pause', () => {
+    if (!audio.paused) return;
+    wantsPlayback = false;
+    if (state !== 'error') state = audio.ended ? 'ended' : audio.currentTime > 0 ? 'paused' : 'idle';
+    render();
+  });
+  audio.addEventListener('ended', () => {wantsPlayback = false; state = 'ended'; render();});
+  audio.addEventListener('error', () => {wantsPlayback = false; state = 'error'; render();});
+  audio.addEventListener('timeupdate', updateProgress);
+  audio.addEventListener('loadedmetadata', updateProgress);
+  new MutationObserver(render).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
+  window.addEventListener('pagehide', () => {++request; wantsPlayback = false; audio.pause();});
+  render();
 })();
