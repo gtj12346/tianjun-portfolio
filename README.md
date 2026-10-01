@@ -1,4 +1,4 @@
-# GALAXY
+# Galaxy
 
 Read-only public preview of Tianjun Gao’s personal website.
 
