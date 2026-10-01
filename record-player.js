@@ -14,7 +14,8 @@
   let request = 0;
   audio.volume = 0.65;
   function render() {
-    const text = copy[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'];
+    const lang = document.documentElement.lang === 'zh-Hans' ? 'zh-CN' : document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+    const text = Object.fromEntries(Object.entries(copy[lang === 'en' ? 'en' : 'zh']).map(([key,value]) => [key,window.GalaxyLocale.text(value,lang)]));
     root.querySelector('.record-kicker').textContent = text.kicker;
     root.querySelector('.record-state').textContent = text[state];
     root.setAttribute('aria-label', text.region);
