@@ -1,5 +1,7 @@
-# Tianjun Gao
+# GALAXY
 
-Personal portfolio — AI, product, and people.
+Read-only public preview of Tianjun Gao’s personal website.
 
-Static HTML, CSS, and JavaScript. Published with GitHub Pages.
+This repository contains static pages and published journal entries only. Drafts, the editor, local server, and database are not included.
+
+Changes are published as snapshots; writing and draft storage remain on the owner’s computer.
