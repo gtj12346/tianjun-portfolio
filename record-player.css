@@ -16,3 +16,21 @@ html:lang(zh) .record-kicker{font-family:inherit;letter-spacing:.12em;font-size:
 @keyframes record-spin{to{transform:rotate(360deg)}}
 @media(max-width:760px){.record-player{right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:264px;box-shadow:3px 3px 0 var(--ink)}.record-toggle{gap:12px;padding:9px}.turntable{flex-basis:66px;height:58px}.vinyl{width:46px;height:46px;top:6px;left:5px}.tonearm{right:6px;top:9px;height:31px}.record-toggle-copy strong{font-size:15px}.record-kicker{font-size:7px}.record-state{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.record-player *{transition:none!important}.vinyl{animation:none}}
+
+/* A fixed side drawer: swipe horizontally to tuck in, without covering new content. */
+.record-player{--record-scale:1;right:12px;width:calc(290px * var(--record-scale));max-width:calc(100vw - 24px);user-select:none;transform:translateX(var(--drag-offset,0px));transition:transform .2s ease;}
+.record-tools{display:flex;align-items:center;height:28px;border-bottom:1px solid var(--line);padding:0 3px;gap:2px;background:var(--paper)}
+.record-tools button{display:grid;place-items:center;min-width:28px;height:27px;padding:0;border:0;background:transparent;font:18px/1 Arial,sans-serif}
+.record-tools button:hover{background:var(--yellow)}.record-tools button:disabled{color:#b6b5ae;background:transparent}.record-tools button:focus-visible{outline-offset:-3px}
+.record-move{cursor:ew-resize;touch-action:none;margin-right:auto}.record-move span{font-size:21px;color:#77776e}.record-size{display:flex;gap:2px}
+.record-toggle{touch-action:none;gap:calc(15px * var(--record-scale));padding:calc(12px * var(--record-scale))}
+.turntable{flex-basis:calc(76px * var(--record-scale));height:calc(66px * var(--record-scale))}
+.vinyl{left:9.2%;top:10.6%;width:68.4%;height:auto;aspect-ratio:1}.vinyl-label{width:44.2%;height:44.2%}.vinyl-label:after{width:17.4%;height:17.4%;left:41.3%;top:41.3%}
+.tonearm{right:10.5%;top:15.2%;height:53%}
+.record-toggle-copy strong{font-size:calc(17px * var(--record-scale))}.record-state{font-size:calc(10px * var(--record-scale))}
+.record-player.is-dragging{transition:none}.record-player.is-dragging *{cursor:ew-resize!important}
+.record-player.is-docked{transition:none;width:22px;right:0;border:0;border-left:1px solid var(--line);box-shadow:none;background:var(--paper)}
+.is-docked .record-move,.is-docked .record-size,.is-docked .record-toggle,.is-docked .record-progress{display:none}
+.is-docked .record-tools{height:44px;padding:0;border:0;background:transparent}.is-docked .record-collapse{min-width:22px;width:22px;height:44px;font-size:20px;color:#77776e}
+@media(max-width:760px){.record-player:not(.is-docked){width:calc(264px * var(--record-scale))}.record-toggle{padding:calc(9px * var(--record-scale));gap:calc(12px * var(--record-scale))}.turntable{flex-basis:calc(66px * var(--record-scale));height:calc(58px * var(--record-scale))}.record-toggle-copy strong{font-size:calc(15px * var(--record-scale))}.record-state{font-size:calc(9px * var(--record-scale))}}
+@media(prefers-reduced-motion:reduce){.record-player{transition:none}}
