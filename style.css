@@ -85,3 +85,12 @@ footer .wordmark.brand-wordmark,html:lang(zh) footer .wordmark.brand-wordmark{fo
 html:lang(zh-Hans){font-family:"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif}
 html:lang(zh-Hans) .stat-unit{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}
 @media(min-width:761px) and (max-width:1100px){header{gap:18px}header nav,html:lang(zh) header nav{gap:20px}.resume-link{margin-left:0}}
+
+/* Shared six-link navigation, including AI Usage. */
+header nav,html:lang(zh) header nav{gap:clamp(14px,2vw,30px)}
+header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:700}
+@media(max-width:1000px) and (min-width:761px){header{gap:16px;padding-left:3%;padding-right:3%}header nav,html:lang(zh) header nav{gap:14px;font-size:13px}header .resume-link{margin-left:0}}
+@media(max-width:760px){header nav,html:lang(zh) header nav{gap:8px;font-size:12px;letter-spacing:0}header nav{flex-wrap:wrap;row-gap:16px}header .resume-link{margin-left:0}}
+/* One quiet entry point for Work, About and Journal. */
+.site-explore{position:relative}.site-explore summary{display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;white-space:nowrap}.site-explore summary::-webkit-details-marker{display:none}.site-explore summary:after{content:'⌄';font:14px Arial;transform:translateY(-2px)}.site-explore[open] summary:after{transform:rotate(180deg) translateY(-2px)}.explore-menu{position:absolute;top:calc(100% + 18px);left:-20px;min-width:165px;display:flex;flex-direction:column;gap:0;padding:8px 0;background:var(--paper);border:1px solid var(--ink);box-shadow:4px 4px 0 var(--ink);z-index:10}.explore-menu a{display:block;padding:13px 20px}.explore-menu a:after{display:none}.explore-menu a:hover,.explore-menu a:focus-visible{background:var(--yellow);outline-offset:-3px}
+@media(max-width:760px){header nav,html:lang(zh) header nav{font-size:14px;gap:16px}}

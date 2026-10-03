@@ -135,6 +135,7 @@ document.querySelector('#close-case').addEventListener('click',()=>dialog.close(
 // Each locale has its own editorial hierarchy; English originals stay reversible.
 const translatedSections = [
  ["nav a[href=\"/tianjun-portfolio/blog/\"]", "隨筆"],
+ ["nav .usage-link", "AI 用量"],
  [
   "header .wordmark",
   "Galaxy<span class=\"logo-dot\"></span>"
