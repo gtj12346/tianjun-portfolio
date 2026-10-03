@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "source": "TokenTracker",
-  "updatedAt": "2026-10-03T07:32:17+00:00",
+  "updatedAt": "2026-10-03T15:56:00.024673+08:00",
   "timezone": "Asia/Singapore",
-  "totalTokens": 3443349231,
+  "totalTokens": 3448069469,
   "daily": [
     {
       "date": "2026-09-04",
@@ -123,7 +123,105 @@
     },
     {
       "date": "2026-10-03",
-      "tokens": 24273581
+      "tokens": 28993819
+    }
+  ],
+  "models": [
+    {
+      "name": "swe-2-max",
+      "tokens": 1386146627
+    },
+    {
+      "name": "gpt-5.5",
+      "tokens": 638201959
+    },
+    {
+      "name": "gpt-5.6-sol",
+      "tokens": 576523248
+    },
+    {
+      "name": "gpt-6-astra",
+      "tokens": 248273917
+    },
+    {
+      "name": "grok-bot-cua",
+      "tokens": 139707846
+    },
+    {
+      "name": "gpt-6-luna",
+      "tokens": 120126856
+    },
+    {
+      "name": "swe-2-high",
+      "tokens": 109543578
+    },
+    {
+      "name": "grok-bot-default",
+      "tokens": 56022773
+    },
+    {
+      "name": "gpt-5.4",
+      "tokens": 43802649
+    },
+    {
+      "name": "gpt-6-sol",
+      "tokens": 40142415
+    },
+    {
+      "name": "claude-opus-5-low",
+      "tokens": 20108507
+    },
+    {
+      "name": "codex-auto-review",
+      "tokens": 19918620
+    },
+    {
+      "name": "cursor-grok-4.6-high-fast",
+      "tokens": 17615125
+    },
+    {
+      "name": "gpt-5.6-luna",
+      "tokens": 12319707
+    },
+    {
+      "name": "unknown",
+      "tokens": 11272763
+    },
+    {
+      "name": "compactor",
+      "tokens": 3786515
+    },
+    {
+      "name": "claude-opus-4-6",
+      "tokens": 3327471
+    },
+    {
+      "name": "gemini-2.5-flash",
+      "tokens": 639614
+    },
+    {
+      "name": "composer-2-fast",
+      "tokens": 222311
+    },
+    {
+      "name": "composer-2.5-fast",
+      "tokens": 199654
+    },
+    {
+      "name": "gpt-5.3-codex",
+      "tokens": 127297
+    },
+    {
+      "name": "auto",
+      "tokens": 33392
+    },
+    {
+      "name": "gemini-3.1-pro",
+      "tokens": 4764
+    },
+    {
+      "name": "claude-sonnet-4-6",
+      "tokens": 1861
     }
   ]
 }
