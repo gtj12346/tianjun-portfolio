@@ -128,7 +128,7 @@ let activeProject=0;
 const projectRoutes={0:"/tianjun-portfolio/projects/cs14-attention-platform/",1:"/tianjun-portfolio/projects/flash-man/",2:"/tianjun-portfolio/projects/deyan-gis-internship/",3:"/tianjun-portfolio/projects/raizz-growth/"};
 function renderProject(i,focus=false){activeProject=i;const p=localizedProject(i);document.querySelectorAll('[data-project]').forEach((b,n)=>{b.innerHTML=`<span>0${n+1}</span>${ui(localizedProject(n).tab)}`;b.setAttribute('aria-selected',n===i);b.tabIndex=n===i?0:-1;if(n===i&&focus)b.focus();});const panel=document.querySelector('#project-panel');panel.setAttribute('aria-labelledby',`tab-${i}`);panel.innerHTML=ui(`<div class="project-visual" style="background:${p.color};color:${p.ink}"><div class="visual-top"><span>${language !== 'en' ? '項目手記' : 'FIELD NOTES'} — 0${i+1}</span><span>Galaxy</span></div><div class="visual-title">${p.short.replace('\n','<br>')}</div><div class="mini-flow" aria-label="${p.steps.join(language !== 'en' ? '，然後' : ', then ')}">${p.steps.map((s,n)=>(n?'<b aria-hidden="true"></b>':'')+`<span>${s}</span>`).join('')}</div><div class="visual-bottom"><span>${p.footer}</span><span>0${i+1}/04</span></div></div><div class="project-info"><p class="eyebrow">${p.category}</p><h3>${p.title}</h3><p class="project-description">${p.description}</p><div class="project-stat">${p.stat}${p.statUnit ? `<span class="stat-unit">${p.statUnit}</span>` : ''}</div><p class="stat-label">${p.statLabel}</p>${projectRoutes[i]?'<a class="text-button" id="read-case" href="'+projectRoutes[i]+'">':'<button class="text-button" id="read-case" type="button">'}${language !== 'en' ? '探索項目' : 'Explore the project'}<span aria-hidden="true" class="action-arrow">↗</span>${projectRoutes[i]?'</a>':'</button>'}</div>`);if(!projectRoutes[i])document.querySelector('#read-case').addEventListener('click',openCase);}
 document.querySelectorAll('[data-project]').forEach((b,i)=>{b.addEventListener('click',()=>renderProject(i));b.addEventListener('keydown',e=>{let next;if(e.key==='ArrowRight')next=(i+1)%4;if(e.key==='ArrowLeft')next=(i+3)%4;if(e.key==='Home')next=0;if(e.key==='End')next=3;if(next!==undefined){e.preventDefault();renderProject(next,true);}});});
-document.querySelector('#about-content').innerHTML=`<div class="about-grid"><div><p class="small-title">MY TOOLKIT</p><div class="skill-list">${['AI agent workflows','Product discovery','Human-in-the-loop design','A/B testing','Python & SQL','Figma & prototyping','KPI frameworks'].map(s=>`<span>${s}</span>`).join('')}</div><p class="small-title">EDUCATION</p><div class="education"><p><strong>The University of Sydney</strong>Master of Data Science<br><span>NOV 2024 — DEC 2026</span></p><p><strong>Hebei University of Science and Technology</strong>B.Eng. in Communication Engineering<br><span>2020 — 2024 · TOP 5% · GPA 3.58/4.00</span></p></div><p class="about-note">A background in engineering. A focus on people. I work across requirements, solution design, delivery, and validation.</p></div><div class="experience"><p class="small-title">EXPERIENCE & PRACTICE</p><details open><summary><span class="date">JUL 2026 — PRESENT · SHENZHEN</span><strong>raizz · a product by axi</strong><span class="role">Product Growth Intern</span></summary><p>At axi, I work on growth for its sleep-tech product raizz: AI-assisted content, publishing, search diagnostics and international growth research.</p></details><details><summary><span class="date">FEB — JUN 2026 · SYDNEY</span><strong>Social Media Survey Platform</strong><span class="role">Product Owner · Client-commissioned project</span></summary><p>Coordinated an eight-person team to connect experimental design, calibrated attention tracking, and usable research data in a live product.</p></details><details><summary><span class="date">JUN — AUG 2025 · BEIJING</span><strong>Beijing De’an IoT Technology</strong><span class="role">Product Intern · AI / GIS</span></summary><p>Translated research and user behaviour into product improvements, measured their impact, and explored applications for AI in GIS.</p></details><details><summary><span class="date">MAR — SEP 2025 · SYDNEY</span><strong>Flash Man</strong><span class="role">Product Lead · Local errand app</span></summary><p>Designed a local errand product from zero, including agent orchestration, exception handling, and human confirmation for consequential actions.</p></details></div></div>`;
+document.querySelector('#about-content').innerHTML=`<div class="about-grid"><div><p class="small-title">MY TOOLKIT</p><div class="skill-list">${['AI agent workflows','Product discovery','Human-in-the-loop design','A/B testing','Python & SQL','Figma & prototyping','KPI frameworks'].map(s=>`<span>${s}</span>`).join('')}</div></div><div class="about-education"><p class="small-title">EDUCATION</p><div class="education"><p><strong>The University of Sydney</strong>Master of Data Science<br><span>NOV 2024 — DEC 2026</span></p><p><strong>Hebei University of Science and Technology</strong>B.Eng. in Communication Engineering<br><span>2020 — 2024 · TOP 5% · GPA 3.58/4.00</span></p></div><p class="about-note">A background in engineering. A focus on people. I work across requirements, solution design, delivery, and validation.</p></div></div>`;
 const dialog=document.createElement('dialog');dialog.setAttribute('aria-labelledby','case-title');dialog.innerHTML='<div class="modal-header"><span>SELECTED WORK / CASE NOTES</span><button type="button" id="close-case">Close ✕</button></div><div class="modal-body" id="case-body"></div>';document.body.append(dialog);
 function openCase(){const p=localizedProject(activeProject);document.querySelector('#case-body').innerHTML=ui(`<p class="eyebrow">0${activeProject+1} — ${p.tab.toUpperCase()}</p><h2 id="case-title">${p.title}</h2><p class="modal-meta">${p.meta}</p><h3>${language !== 'en' ? '項目背景' : 'The challenge'}</h3><p>${p.challenge}</p><h3>${language !== 'en' ? '工作內容' : 'What I did'}</h3><ul>${p.contribution.map(x=>`<li>${x}</li>`).join('')}</ul><div class="modal-result"><strong>${p.result}</strong><p>${p.outcome}</p></div>`);if(!dialog.open) dialog.showModal();dialog.scrollTop=0;document.body.style.overflow='hidden';}
 document.querySelector('#close-case').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{document.body.style.overflow='';document.querySelector('#read-case').focus();});dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});renderProject(0);
@@ -214,17 +214,14 @@ const translatedSections = [
   "能夠使用 SQL、Python 開展數據分析，<br>並協同研發推動 AI 產品從需求定義到上線驗證。"
  ],
  [
-  ".about-grid > div:first-child > .small-title:nth-of-type(2)",
+  ".about-education > .small-title",
   "教育背景"
  ],
  [
   ".skill-list",
   "<span>Agent 任務編排</span><span>Tool Calling</span><span>上下文管理</span><span>異常恢復</span><span>Human-in-the-loop</span><span>需求分析</span><span>A/B 實驗</span><span>Figma / Axure</span><span>SQL / Python</span>"
  ],
- [
-  ".experience > .small-title",
-  "經歷與實踐"
- ],
+
  [
   "#contact > .eyebrow",
   "03 — 聊聊想法"
@@ -257,70 +254,7 @@ const translatedSections = [
   ".modal-header > span",
   "精選作品 / 項目手記"
  ],
- [
-  ".experience details:nth-of-type(1) .date",
-  "2026.07 — 至今 · 深圳"
- ],
- [
-  ".experience details:nth-of-type(1) strong",
-  "raizz（axi 旗下產品）"
- ],
- [
-  ".experience details:nth-of-type(1) .role",
-  "Product Growth Intern"
- ],
- [
-  ".experience details:nth-of-type(1) p",
-  "負責 axi 旗下睡眠科技產品 raizz 的 AI 內容工作流、Web 發佈與搜索增長，並參與海外增長渠道及競品生態研究。"
- ],
- [
-  ".experience details:nth-of-type(2) .date",
-  "2026.02 — 06 · 悉尼"
- ],
- [
-  ".experience details:nth-of-type(2) strong",
-  "社交媒體實驗與注意力分析平臺"
- ],
- [
-  ".experience details:nth-of-type(2) .role",
-  "Product Owner · 客戶委託 · 已上線"
- ],
- [
-  ".experience details:nth-of-type(2) p",
-  "主導融合 A/B 實驗與瀏覽器端注意力追蹤的研究平臺，覆蓋實驗工作流定義、核心能力設計、部分前端開發與 8 人跨端協作。"
- ],
- [
-  ".experience details:nth-of-type(3) .date",
-  "2025.06 — 08 · 北京"
- ],
- [
-  ".experience details:nth-of-type(3) strong",
-  "北京德安物聯科技有限公司"
- ],
- [
-  ".experience details:nth-of-type(3) .role",
-  "產品實習生（AI / GIS 方向）"
- ],
- [
-  ".experience details:nth-of-type(3) p",
-  "參與 GIS / 智慧城市產品智能化規劃及核心轉化鏈路優化，圍繞用戶需求、產品方案、數據分析與上線驗證開展產品工作。"
- ],
- [
-  ".experience details:nth-of-type(4) .date",
-  "2025.03 — 09 · 悉尼"
- ],
- [
-  ".experience details:nth-of-type(4) strong",
-  "悉尼同城跑腿 App（Flash Man）"
- ],
- [
-  ".experience details:nth-of-type(4) .role",
-  "Product Lead"
- ],
- [
-  ".experience details:nth-of-type(4) p",
-  "從 0–1 設計同城跑腿產品，將 AI Agent 引入訂單理解、任務編排與履約異常處理，構建面向真實服務流程的智能化執行鏈路。"
- ]
+
 ].map(([selector,zh]) => {const element=document.querySelector(selector);return {element,en:element.innerHTML,zh};});
 function applyLanguage(next, persist = true) {
  language = L.normalize(next);
