@@ -17,7 +17,7 @@
     $('.story-subtitle').textContent=edition.subtitle;
     $('#story-title').lang=htmlLang;$('#story').lang=htmlLang;
     document.title=edition.title+' · Galaxy';
-    $('meta[name="description"]').content=lang==='en'?'SEO and GEO growth at Axi: search research, analytics, technical SEO and AI workflows for raizz.':lang==='zh-CN'?'在 Axi 为 raizz 做 SEO 与 GEO 增长：搜索需求研究、数据分析、技术 SEO 与 AI 工作流。':'在 Axi 為 raizz 做 SEO 與 GEO 增長：搜尋需求研究、數據分析、技術 SEO 與 AI 工作流。';
+    $('meta[name="description"]').content=lang==='en'?'SEO and GEO growth for raizz, a sleep-tech product by axi: search research, analytics, technical SEO and AI workflows.':lang==='zh-CN'?'为 axi 旗下睡眠科技产品 raizz 做 SEO 与 GEO 增长：搜索需求研究、数据分析、技术 SEO 与 AI 工作流。':'為 axi 旗下睡眠科技產品 raizz 做 SEO 與 GEO 增長：搜尋需求研究、數據分析、技術 SEO 與 AI 工作流。';
     figures=[...document.querySelectorAll('.figure-link')];
     chapters=[...document.querySelectorAll('.essay-chapter')];
     links=[...document.querySelectorAll('.story-contents nav a')];
