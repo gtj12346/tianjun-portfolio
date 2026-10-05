@@ -100,3 +100,18 @@ header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:70
 .explore-menu a{white-space:normal;line-height:1.5}
 .explore-menu a[aria-current="page"]{font-weight:700;background:#efeee8}
 @media(max-width:760px){.explore-menu{left:0}}
+
+/* Resume-backed toolkit: methods and tools, grouped for scanning. */
+#about .about-grid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8%}
+.toolkit-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 28px}
+.toolkit-group{border-top:2px solid var(--ink);padding-top:17px;min-width:0}
+.toolkit-group:nth-child(2){border-color:var(--blue)}
+.toolkit-group:nth-child(3){border-color:var(--green)}
+.toolkit-group:nth-child(4){border-color:#d9b527}
+.toolkit-group h3{font-size:18px;line-height:1.4;letter-spacing:-.02em;margin:0 0 15px}
+.toolkit-group .skill-list{max-width:none;gap:6px;margin:0 0 14px}
+.toolkit-group .skill-list span{font-size:11px;padding:6px 8px}
+.toolkit-group>p{font-size:13px;line-height:1.8;color:#53534f;margin:0}
+html:lang(zh) .toolkit-group h3{letter-spacing:0}
+@media(max-width:1000px){#about .about-grid{grid-template-columns:1fr;gap:42px}.toolkit-groups{max-width:800px}}
+@media(max-width:480px){.toolkit-groups{grid-template-columns:1fr;gap:26px}.toolkit-group .skill-list span{font-size:12px}.toolkit-group>p{font-size:14px}}
