@@ -46,7 +46,7 @@
   document.querySelectorAll('[data-language]').forEach(b=>b.addEventListener('click',()=>language(b.dataset.language)));
   document.querySelectorAll('[data-range]').forEach(b=>b.addEventListener('click',()=>{range=Number(b.dataset.range);render();}));
   language(lang);
-  fetch('usage.json?v=0279589f9223',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('load');return r.json();}).then(value=>{
+  fetch('usage.json?v=0f2a03766b85',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('load');return r.json();}).then(value=>{
     if(value.schemaVersion!==2||!Number.isSafeInteger(value.totalTokens)||value.totalTokens<0||value.daily?.length!==30||!value.daily.every(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&Number.isSafeInteger(r.tokens)&&r.tokens>=0)||!Number.isFinite(Date.parse(value.updatedAt)))throw new Error('schema');
     if(!Array.isArray(value.models)||!value.models.every(m=>typeof m.name==='string'&&Number.isSafeInteger(m.tokens)&&m.tokens>=0)||value.models.reduce((sum,m)=>sum+m.tokens,0)!==value.totalTokens)throw new Error('models');
     data=value;$('#usage-data').hidden=false;$('#load-status').textContent='';render();

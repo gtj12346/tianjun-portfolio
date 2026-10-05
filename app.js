@@ -322,7 +322,6 @@ const translatedSections = [
   "從 0–1 設計同城跑腿產品，將 AI Agent 引入訂單理解、任務編排與履約異常處理，構建面向真實服務流程的智能化執行鏈路。"
  ]
 ].map(([selector,zh]) => {const element=document.querySelector(selector);return {element,en:element.innerHTML,zh};});
-const resumeLinks=[document.querySelector('footer a[href$=".pdf"]')].map(element=>({element,en:element.innerHTML}));
 function applyLanguage(next, persist = true) {
  language = L.normalize(next);
  const chinese = language !== 'en';
@@ -330,7 +329,6 @@ function applyLanguage(next, persist = true) {
  document.title = chinese ? ui('Galaxy — 讓想法成為現實') : 'Galaxy — Ideas into things that work';
  document.querySelector('meta[name="description"]').content = chinese ? ui('Galaxy，高天駿的個人網站：AI 應用、Agent 工作流、實驗平臺、產品設計與增長實踐。') : 'Galaxy is the personal website of Tianjun Gao, building AI-powered products and workflows. Explore selected work in agent systems, research platforms, growth and GIS.';
  translatedSections.forEach(({element,en,zh})=>{element.innerHTML=chinese?ui(zh):en;element.lang=L.htmlLang(language);});
- resumeLinks.forEach(({element,en},i)=>{element.href='Tianjun-Gao-Resume.pdf';element.innerHTML=chinese?ui('英文簡歷 ↗'):en;element.lang=L.htmlLang(language);});
  document.querySelectorAll('[data-language]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
  document.querySelector('#copy-status').textContent='';
  document.querySelector('#composition-status').textContent='';

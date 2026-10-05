@@ -1,18 +1,10 @@
 {
   "schemaVersion": 2,
   "source": "TokenTracker",
-  "updatedAt": "2026-10-03T15:56:00.024673+08:00",
+  "updatedAt": "2026-10-05T16:59:36.786011+08:00",
   "timezone": "Asia/Singapore",
-  "totalTokens": 3448069469,
+  "totalTokens": 3522331486,
   "daily": [
-    {
-      "date": "2026-09-04",
-      "tokens": 31147967
-    },
-    {
-      "date": "2026-09-05",
-      "tokens": 4873744
-    },
     {
       "date": "2026-09-06",
       "tokens": 34251333
@@ -123,7 +115,15 @@
     },
     {
       "date": "2026-10-03",
-      "tokens": 28993819
+      "tokens": 47847576
+    },
+    {
+      "date": "2026-10-04",
+      "tokens": 11505392
+    },
+    {
+      "date": "2026-10-05",
+      "tokens": 43902868
     }
   ],
   "models": [
@@ -141,7 +141,7 @@
     },
     {
       "name": "gpt-6-astra",
-      "tokens": 248273917
+      "tokens": 288537235
     },
     {
       "name": "grok-bot-cua",
@@ -176,6 +176,10 @@
       "tokens": 19918620
     },
     {
+      "name": "claude-opus-5-5-high",
+      "tokens": 17939882
+    },
+    {
       "name": "cursor-grok-4.6-high-fast",
       "tokens": 17615125
     },
@@ -184,8 +188,16 @@
       "tokens": 12319707
     },
     {
+      "name": "claude-opus-5-5-medium",
+      "tokens": 11962899
+    },
+    {
       "name": "unknown",
       "tokens": 11272763
+    },
+    {
+      "name": "claude-4.5-sonnet",
+      "tokens": 4095918
     },
     {
       "name": "compactor",
