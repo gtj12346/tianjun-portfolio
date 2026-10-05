@@ -146,14 +146,6 @@ const translatedSections = [
   "Galaxy<span class=\"logo-dot\"></span>"
  ],
  [
-  "nav a[href=\"#work\"]",
-  "作品"
- ],
- [
-  "nav a[href=\"#about\"]",
-  "關於"
- ],
- [
   "nav a[href=\"#contact\"]",
   "聯絡"
  ],
