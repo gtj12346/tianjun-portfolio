@@ -110,3 +110,17 @@ header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:70
 .about-languages strong{font-weight:600;color:var(--ink);margin-right:10px}
 .about-languages span{font-size:12px}
 @media(max-width:760px){#about .toolkit-groups .skill-list,.about-languages{max-width:none}}
+
+/* A small creative credential balances the lower half of About. */
+.about-recognition{max-width:440px;margin-top:30px;padding-top:24px;border-top:1px solid #c6c5bf}
+.about-recognition>.small-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.about-recognition>.small-title span{font:11px monospace;letter-spacing:1px;color:#62625d}
+.award-line{display:grid;grid-template-columns:56px 1fr;gap:20px;align-items:center}
+.award-line h3{font-size:20px;line-height:1.4;letter-spacing:-.02em;margin:0 0 6px}
+.award-line p{font-size:13px;line-height:1.7;color:#62625d;margin:0}
+.award-mark{height:60px;position:relative}
+.award-mark i{position:absolute;top:0;left:3px;width:44px;height:44px;background:var(--yellow);border-radius:50%}
+.award-mark b{position:absolute;bottom:0;left:16px;width:18px;height:39px;background:var(--blue);mix-blend-mode:multiply}
+@media(max-width:760px){.about-recognition{max-width:none}.award-line h3{font-size:19px}}
+
+@media(min-width:761px){#about .about-grid{grid-template-rows:auto auto auto;row-gap:24px}#about .about-grid>div{display:grid;grid-template-rows:subgrid;grid-row:1/4;min-width:0}#about .about-grid>div:first-child{grid-column:1}#about .about-education{grid-column:2}#about .about-grid>div>.small-title{margin:0}#about .about-recognition,#about .about-languages{margin-top:0;width:100%;align-self:start}#about .education p:last-child{margin-bottom:0}}
