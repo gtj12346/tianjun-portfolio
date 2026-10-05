@@ -2,7 +2,17 @@
   const menu=document.querySelector('.site-explore');
   if(!menu)return;
   const label=menu.querySelector('summary');
-  function language(){label.textContent=document.documentElement.lang.startsWith('en')?'Explore':'探索';}
+  function language(){
+    const english=document.documentElement.lang.startsWith('en');
+    const locale=document.documentElement.lang==='zh-Hans'?'zh-CN':'zh';
+    label.textContent=english?'Explore':'探索';
+    menu.querySelectorAll('[data-project-nav]').forEach(link=>{
+      const text=link.dataset.projectNav==='attention'?(english?'Attention research platform':'社交媒體實驗與注意力分析平台'):'Flash Man';
+      link.textContent=english?text:window.GalaxyLocale.text(text,locale);
+      if(new URL(link.href).pathname===location.pathname)link.setAttribute('aria-current','page');
+      else link.removeAttribute('aria-current');
+    });
+  }
   language();new MutationObserver(language).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.open=false));
   document.addEventListener('click',e=>{if(!menu.contains(e.target))menu.open=false;});

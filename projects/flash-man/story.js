@@ -1,6 +1,6 @@
 (() => {
   const L=window.GalaxyLocale, $=s=>document.querySelector(s);
-  const copy={en:{brand:'Galaxy<span class="logo-dot"></span>',work:'Work',about:'About',blog:'Journal',usage:'AI Usage',contact:'Contact',resume:'Résumé <span class="tiny">PDF</span>',name:'Tianjun Gao',skip:'Skip to story',backWork:'← Back to work',original:'PROJECT STORY',figures:'14 IMAGES',contents:'IN THIS STORY',top:'Back to the beginning ↑',enlarge:'View larger ↗',originalImage:'Original ↗',close:'Close ✕'},zh:{brand:'Galaxy<span class="logo-dot"></span>',work:'作品',about:'關於',blog:'隨筆',usage:'AI 用量',contact:'聯絡',resume:'簡歷 <span class="tiny">PDF</span>',name:'高天駿',skip:'跳至正文',backWork:'← 回到作品',original:'項目手記',figures:'14 幅配圖',contents:'文章目錄',top:'回到開頭 ↑',enlarge:'點擊放大 ↗',originalImage:'原圖 ↗',close:'關閉 ✕'}};
+  const copy={en:{brand:'Galaxy<span class="logo-dot"></span>',work:'Work',about:'About',blog:'Journal',usage:'AI Token Usage',contact:'Contact',resume:'Résumé <span class="tiny">PDF</span>',name:'Tianjun Gao',skip:'Skip to story',backWork:'← Back to work',original:'PROJECT STORY',figures:'14 IMAGES',contents:'IN THIS STORY',top:'Back to the beginning ↑',enlarge:'View larger ↗',originalImage:'Original ↗',close:'Close ✕'},zh:{brand:'Galaxy<span class="logo-dot"></span>',work:'作品',about:'關於',blog:'隨筆',usage:'AI Token 用量',contact:'聯絡',resume:'簡歷 <span class="tiny">PDF</span>',name:'高天駿',skip:'跳至正文',backWork:'← 回到作品',original:'項目手記',figures:'14 幅配圖',contents:'文章目錄',top:'回到開頭 ↑',enlarge:'點擊放大 ↗',originalImage:'原圖 ↗',close:'關閉 ✕'}};
   let lang=L.initial(),current=0,opener=null;
   const editions=JSON.parse($('#story-translations').textContent);
   const viewer=$('.image-viewer'),figures=[...document.querySelectorAll('.figure-link')];
@@ -20,7 +20,7 @@
     title.lang=htmlLang;$('#story').lang=htmlLang;
     document.title=edition.title+' — Flash Man · Galaxy';
     $('meta[name="description"]').content=lang==='en'?'The story of Flash Man: a missing key in Sydney, an errand service, and what we learnt along the way.':lang==='zh-CN'?'Flash Man 项目手记：从悉尼的一把钥匙，到跑腿服务、Agent 工作流与一次产品复盘。':'Flash Man 項目手記：從悉尼的一把鑰匙，到跑腿服務、Agent 工作流與一次產品復盤。';
-    $('.resume-link').href=lang==='en'?'../../Tianjun-Gao-Resume.pdf':'../../Tianjun-Gao-Resume-ZH.pdf';
+
     $('header nav').setAttribute('aria-label',lang==='en'?'Main navigation':L.text('主要導覽',lang));
     $('.story-contents nav').setAttribute('aria-label',lang==='en'?'Article chapters':L.text('文章章節',lang));
     $('#image-prev').setAttribute('aria-label',lang==='en'?'Previous image':lang==='zh-CN'?'上一张':'上一張');

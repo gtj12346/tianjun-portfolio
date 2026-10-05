@@ -94,3 +94,10 @@ header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:70
 /* One quiet entry point for Work, About and Journal. */
 .site-explore{position:relative}.site-explore summary{display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;white-space:nowrap}.site-explore summary::-webkit-details-marker{display:none}.site-explore summary:after{content:'⌄';font:14px Arial;transform:translateY(-2px)}.site-explore[open] summary:after{transform:rotate(180deg) translateY(-2px)}.explore-menu{position:absolute;top:calc(100% + 18px);left:-20px;min-width:165px;display:flex;flex-direction:column;gap:0;padding:8px 0;background:var(--paper);border:1px solid var(--ink);box-shadow:4px 4px 0 var(--ink);z-index:10}.explore-menu a{display:block;padding:13px 20px}.explore-menu a:after{display:none}.explore-menu a:hover,.explore-menu a:focus-visible{background:var(--yellow);outline-offset:-3px}
 @media(max-width:760px){header nav,html:lang(zh) header nav{font-size:13px;gap:10px}}
+
+/* Project shortcuts share the Explore menu on every page. */
+.explore-menu{width:290px;max-width:calc(100vw - 44px)}
+.explore-menu a{white-space:normal;line-height:1.5}
+.explore-menu .project-nav-start{border-top:1px solid var(--line);margin-top:6px;padding-top:18px}
+.explore-menu a[aria-current="page"]{font-weight:700;background:#efeee8}
+@media(max-width:760px){.explore-menu{left:0}}
