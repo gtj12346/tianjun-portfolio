@@ -109,9 +109,9 @@ header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:70
 .toolkit-group:nth-child(3){border-color:var(--green)}
 .toolkit-group:nth-child(4){border-color:#d9b527}
 .toolkit-group h3{font-size:18px;line-height:1.4;letter-spacing:-.02em;margin:0 0 15px}
-.toolkit-group .skill-list{max-width:none;gap:6px;margin:0 0 14px}
-.toolkit-group .skill-list span{font-size:11px;padding:6px 8px}
+#about .toolkit-group .skill-list{max-width:none;gap:4px 0;margin:0 0 14px}
+#about .toolkit-group .skill-list span{font-size:13px;line-height:1.8;padding:0;border:0}#about .toolkit-group .skill-list span:not(:last-child)::after{content:" / ";color:#8b8b82;white-space:pre;margin:0 5px}
 .toolkit-group>p{font-size:13px;line-height:1.8;color:#53534f;margin:0}
 html:lang(zh) .toolkit-group h3{letter-spacing:0}
 @media(max-width:1000px){#about .about-grid{grid-template-columns:1fr;gap:42px}.toolkit-groups{max-width:800px}}
-@media(max-width:480px){.toolkit-groups{grid-template-columns:1fr;gap:26px}.toolkit-group .skill-list span{font-size:12px}.toolkit-group>p{font-size:14px}}
+@media(max-width:480px){.toolkit-groups{grid-template-columns:1fr;gap:26px}#about .toolkit-group .skill-list span{font-size:12px}.toolkit-group>p{font-size:14px}}
