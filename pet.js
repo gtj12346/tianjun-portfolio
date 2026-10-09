@@ -47,7 +47,7 @@
   let hovered = false, focused = false, drag = null, swallowClick = false;
   let frame = 0, actionTimer = 0, bubbleTimer = 0, brainTimer = 0, idleTimer = 0, dragFrame = 0, dockTimer = 0, settleTimer = 0, move = null;
   let nextWalk = now()+3500;
-  let nextCoding = now()+between(18000,28000);
+  let lastPetInteraction=now(), quietMode='';
   let nextSip = now()+between(4500,6500), idleBeat = 0;
   let visibleMessage = null, contextPending = '', contextAt = 0;
   let lastReaction = -1;
@@ -69,19 +69,19 @@
     en:{
       name:'Galaxy companion',greet:'Say hi — drag to move',hide:'Tuck the companion away',restore:'Bring the companion back',peek:'Bring me back — click or drag left',
       help:'Click to interact. Drag to move; drag to the right edge to peek out. Arrow keys move the companion; Home returns it to the bottom. Escape closes its speech bubble.',
-      invite:'Wanna hear me sing?',yes:'Sure',no:'No thanks',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
+      drink:'Cheers!\nHere’s to good ideas.',invite:'Wanna hear me sing?',yes:'Sure',no:'No thanks',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
       welcome:'G’day mate!\nHow’s your day going?',journal:'A few thoughts,\nstill taking shape.',usage:'Turns out, curiosity\nuses a lot of tokens.'
     },
     'zh-Hans':{
       name:'Galaxy 小伙伴',greet:'点我互动，也可以拖动',hide:'收起小伙伴',restore:'叫小伙伴回来',peek:'点一下或向左拖，把我叫回来',
       help:'点击互动，拖动换位置，拖到右边缘可以探头。方向键移动，Home 键回到底边，Escape 键关闭气泡。',
-      invite:'你想听我唱歌吗？',yes:'可以',no:'不了',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
+      drink:'碰个杯，\n好想法慢慢聊。',invite:'你想听我唱歌吗？',yes:'可以',no:'不了',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
       welcome:'哈喽，吃了吗您内？',journal:'一些还在生长的想法，\n慢慢看。',usage:'好奇心，\n原来真的会消耗 Token。'
     },
     'zh-Hant':{
       name:'Galaxy 小夥伴',greet:'點我互動，也可以拖動',hide:'收起小夥伴',restore:'叫小夥伴回來',peek:'點一下或向左拖，把我叫回來',
       help:'點擊互動，拖動換位置，拖到右邊緣可以探頭。方向鍵移動，Home 鍵回到底邊，Escape 鍵關閉氣泡。',
-      invite:'你想聽我唱歌嗎？',yes:'可以',no:'不了',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
+      drink:'碰個杯，\n好想法慢慢聊。',invite:'你想聽我唱歌嗎？',yes:'可以',no:'不了',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
       welcome:'嗨，食咗飯未呀？',journal:'一些還在生長的想法，\n慢慢看。',usage:'好奇心，\n原來真的會消耗 Token。'
     }
   };
@@ -149,10 +149,14 @@
   function stopMotion() { cancelAnimationFrame(frame); frame = 0; move = null; }
   function idle() { stopMotion(); clearTimeout(actionTimer);clearTimeout(dockTimer); setState(performing?'singing':'idle'); pose(); root.style.setProperty('--facing',1); }
   function blocked() { return tucked || state==='peek' || state==='docking' || document.hidden || !!document.querySelector('dialog[open]') || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '') || document.activeElement?.isContentEditable; }
+  function engage() {
+    lastPetInteraction=now();quietMode='';root.dataset.activity='';
+    if(state==='coding' || state==='walk')idle();
+    nextWalk=now()+6000;
+  }
   function react(kind) {
     dismissInvitation();
-    if(kind==='coding') { if(startCoding())return; kind='smile'; }
-    if(kind==='drink' && restReady) { sip();return; }
+    if(kind==='drink' && restReady) { sip(true);return; }
     idle(); setState(kind); nextWalk=now()+between(8000,13000);
     const sequence = kind==='wave' ? [[4,400],[-1,180],[4,500],[-1,200]] : kind==='drink' ? [[6,1500],[-1,250]] : [[5,1300],[-1,150]];
     let i=0;
@@ -160,10 +164,10 @@
       if (i>=sequence.length) { idle(); return; }
       const [index,duration]=sequence[i++]; pose(index); actionTimer=setTimeout(step,duration);
     };
-    step();
+    step();if(kind==='drink')say('drink');
   }
-  function sip() {
-    idle();setState('sip');
+  function sip(manual=false) {
+    idle();setState('sip');if(manual)say('drink');
     nextSip=now()+between(14000,24000);nextWalk=Math.max(nextWalk,now()+2800);
     const sequence=reducedMotion.matches?[[7,1600]]:[[4,170],[5,620],[6,240],[4,170],[5,650],[6,230],[7,260]];
     let i=0;
@@ -177,16 +181,15 @@
   function startCoding() {
     if(!codingReady) return false;
     idle(); setState('coding');
-    nextCoding=now()+between(24000,42000);
     nextWalk=now()+10000;
-    const began=now(), sequence=[0,1,0,3,1,0,2,1];
+    const sequence=[0,1,0,3,1,0,2,1];
     let i=0;
     const type=()=>{
       if(state!=='coding')return;
-      if(now()-began>=6000){idle();return;}
+      if(quietMode!=='coding' || blocked()){idle();return;}
       const index=reducedMotion.matches?0:sequence[i++%sequence.length];
       codingSprite.style.backgroundPosition=`${index%2*100}% ${index>=2?100:0}%`;
-      actionTimer=setTimeout(type,reducedMotion.matches?6000:240);
+      actionTimer=setTimeout(type,reducedMotion.matches?1000:240);
     };
     type(); return true;
   }
@@ -194,6 +197,7 @@
     if (blocked() || hovered || focused || !onFloor || reducedMotion.matches || !atlasReady) return;
     const max=viewport().w-size().w-10;
     let target=clamp(x+(Math.random()<.5?-1:1)*between(90,Math.min(300,Math.max(100,max*.55))),10,max);
+    if(quietMode==='walking')target=clamp(x<max/2?max-20:20,10,max);
     if (Math.abs(target-x)<50) target=clamp(x+(x<max/2?1:-1)*120,10,max);
     if (Math.abs(target-x)<20) return;
     const direction=target>x?1:-1;
@@ -205,7 +209,7 @@
       const progress=Math.min((t-move.began)/move.duration,1);
       x=move.start+(move.target-move.start)*progress; y=floor();
       pose(Math.floor((t-move.began)/170)%4); draw();
-      if(progress>=1){idle();nextWalk=now()+between(6000,12000);return;}
+      if(progress>=1){idle();nextWalk=now()+(quietMode==='walking'?400:between(6000,12000));return;}
       frame=requestAnimationFrame(tick);
     };
     frame=requestAnimationFrame(tick);
@@ -263,7 +267,7 @@
     song.pause();song.currentTime=0;clearTimeout(singingTimer);singingTimer=0;
     if(performing)changePerformance(false);
     if(restoreFocus){if(keyboardFocus)greet.focus({preventScroll:true});else document.activeElement?.blur();}
-    nextWalk=now()+7000;nextCoding=now()+20000;nextSip=now()+14000;
+    engage();nextWalk=now()+7000;nextSip=now()+14000;
   }
   function playbackFailed(request) {
     if(request!==playRequest || !performing)return;
@@ -298,12 +302,17 @@
     if (!blocked() && !drag) {
       const t=now();
       if(!invitationRecord && !performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
+      if(!quietMode && !performing && !invited && !visibleMessage && !contextPending && t-lastPetInteraction>=10000 && (state==='idle' || state==='walk')) {
+        quietMode=(!onFloor || reducedMotion.matches || hovered || focused || Math.random()<.6)?'coding':'walking';
+        root.dataset.activity=quietMode;idle();nextWalk=t;
+      }
       if(state==='idle' && !invited && !performing) {
         if(!idleTimer)scheduleIdle();
-        if(contextPending && t>=contextAt) { say(contextPending); contextPending=''; nextWalk=t+5500; }
-        else if(t>=nextCoding && !hovered && !focused) { nextCoding=t+12000; startCoding(); }
-        else if(t>=nextSip && !visibleMessage && restReady && !reducedMotion.matches) sip();
-        else if(t>=nextWalk) { nextWalk=t+between(6000,12000); walk(); }
+        if(contextPending && t>=contextAt && !visibleMessage) { say(contextPending); contextPending=''; nextWalk=t+5500; }
+        else if(quietMode==='coding')startCoding();
+        else if(quietMode==='walking' && t>=nextWalk){nextWalk=t+1000;walk();}
+        else if(!quietMode && t>=nextSip && !visibleMessage && restReady && !reducedMotion.matches) sip();
+        else if(!quietMode && t>=nextWalk) { nextWalk=t+between(6000,12000); walk(); }
       }
     }
     brainTimer=setTimeout(brain,1000);
@@ -335,7 +344,7 @@
     x=viewport().w-size().w-18;onFloor=Math.abs(y-floor())<32;if(onFloor)y=floor();
     root.classList.add('is-settling');draw();
     clearTimeout(settleTimer);settleTimer=setTimeout(()=>root.classList.remove('is-settling'),300);
-    nextWalk=now()+9000;nextSip=now()+15000;nextCoding=now()+20000;
+    nextWalk=now()+9000;nextSip=now()+15000;
     animateSinging();if(focus)greet.focus({preventScroll:true});
   }
   peek.addEventListener('click',event=>{if(swallowClick){swallowClick=false;event.preventDefault();return;}reveal(event.detail===0);});
@@ -343,8 +352,9 @@
   greet.addEventListener('click',event=>{
     if(swallowClick){swallowClick=false;event.preventDefault();return;}
     if(performing){toggleSong();return;}
-    let index=Math.floor(Math.random()*4);if(index===lastReaction)index=(index+1)%4;lastReaction=index;
-    react(['wave','smile','drink','coding'][index]);
+    engage();
+    let index=Math.floor(Math.random()*3);if(index===lastReaction)index=(index+1)%3;lastReaction=index;
+    react(['wave','smile','drink'][index]);
   });
   function beginDrag(event,handle,fromPeek=false) {
     if(!event.isPrimary || event.button!==0 || drag)return;
@@ -366,7 +376,8 @@
     root.classList.toggle('controls-below',y<44);
   }
   root.addEventListener('pointermove',event=>{
-    if(!drag || drag.id!==event.pointerId)return;
+    if(!drag){if(event.pointerType==='mouse')engage();return;}
+    if(drag.id!==event.pointerId)return;
     const dx=event.clientX-drag.px,dy=event.clientY-drag.py;
     if(!drag.started && Math.hypot(dx,dy)<(event.pointerType==='touch'?6:3))return;
     if(!drag.started){
@@ -390,7 +401,7 @@
       else if(ended.lastX>=ended.view.w-18 || x+ended.dim.w*.65>=ended.view.w){dock();return;}
       else {onFloor=Math.abs(y-floor())<32;if(onFloor)y=floor();}
       peek.hidden=true;body.hidden=false;
-      idle();nextWalk=now()+9000;nextCoding=now()+between(18000,28000);nextSip=now()+between(12000,22000);draw();animateSinging();
+      idle();nextWalk=now()+9000;nextSip=now()+between(12000,22000);draw();animateSinging();
     } else if(!ended.fromPeek) idle();
   }
   root.addEventListener('pointerup',event=>endDrag(event));
@@ -403,11 +414,14 @@
     const step=event.shiftKey?40:12;
     if(event.key==='Home'){onFloor=true;x=viewport().w-size().w-18;y=floor();}
     else {x+=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0;y+=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;draw();onFloor=Math.abs(y-floor())<24;if(onFloor)y=floor();}
-    nextWalk=now()+8000;nextCoding=now()+between(18000,28000);nextSip=now()+between(12000,22000);draw();
+    nextWalk=now()+8000;nextSip=now()+between(12000,22000);draw();
   });
-  root.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse'){hovered=true;if(state==='walk'){idle();nextWalk=now()+4000;}}});
+  root.addEventListener('pointerdown',engage);
+  root.addEventListener('pointerup',engage);
+  root.addEventListener('keydown',engage);
+  root.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse'){engage();hovered=true;if(state==='walk'){idle();nextWalk=now()+4000;}}});
   root.addEventListener('pointerleave',()=>{hovered=false;nextWalk=now()+2500;});
-  root.addEventListener('focusin',()=>{focused=true;if(state==='walk')idle();});
+  root.addEventListener('focusin',()=>{engage();focused=true;if(state==='walk')idle();});
   root.addEventListener('focusout',event=>{if(!root.contains(event.relatedTarget))focused=false;});
   root.addEventListener('keydown',event=>{if(event.key==='Escape'){silence();dismissInvitation();}});
   hide.addEventListener('click',()=>{dismissInvitation();endSong();tucked=true;idle();silence();renderTucked(true);try{localStorage.setItem('galaxy-pet-tucked','true');}catch{}});
@@ -426,7 +440,7 @@
   document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){dismissInvitation();clearTimeout(singingTimer);singingTimer=0;if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextInvite=now()+10000;nextWalk=now()+4000;animateSinging();brain();}});
   reducedMotion.addEventListener('change',()=>{animateSinging();if(state==='walk' || state==='sip' || state==='idle')idle();nextWalk=now()+6000;});
   new MutationObserver(localize).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  // One greeting per page visit; scrolling and actions stay quiet.
+  // One greeting per page visit; only a manually triggered toast adds dialogue.
   const path=location.pathname;
   if(path.includes('/blog/'))contextPending='journal';
   else if(path.includes('/ai-usage/'))contextPending='usage';
