@@ -1,10 +1,10 @@
 (() => {
   if (document.querySelector('.galaxy-pet')) return;
   const asset = name => new URL(`assets/pet/${name}`, document.currentScript.src).href;
-  const portrait = asset('companion.webp'), actions = asset('actions.webp'), coding = asset('coding.webp'), resting = asset('idle.webp');
+  const portrait = asset('companion.webp'), actions = asset('actions.webp'), coding = asset('coding.webp'), resting = asset('idle.webp'), peeking = asset('peek-frame.webp');
   const root = document.createElement('aside');
   root.className = 'galaxy-pet';
-  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span></span><span class="pet-zzz" aria-hidden="true">z z z</span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button></div><button class="pet-peek" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
+  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span></span><span class="pet-zzz" aria-hidden="true">z z z</span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button></div><button class="pet-peek" type="button" hidden><img src="${peeking}" alt="" width="86" height="129" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
   // Clip only the companion layer, so dragging off-screen never widens the page.
   const stage=document.createElement('div');stage.className='pet-stage';stage.append(root);document.body.append(stage);
   const greet = root.querySelector('.pet-greet'), body = root.querySelector('.pet-body');
@@ -200,7 +200,7 @@
     if(tucked) root.style.transform='none'; else draw();
     if(focus)(tucked?restore:greet).focus({preventScroll:true});
   }
-  const peekSize=()=>({w:viewport().w<=760?48:58,h:viewport().w<=760?54:62});
+  const peekSize=()=>({w:viewport().w<=760?66:86,h:viewport().w<=760?99:129});
   function placePeek() {
     const view=viewport(),dim=peekSize();
     x=view.w-dim.w;y=clamp(y,10,view.h-dim.h-10);
