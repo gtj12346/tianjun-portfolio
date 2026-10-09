@@ -55,17 +55,8 @@
   let invited=false, performing=false, audioPlaying=false, playPending=false, songError=false;
   const inviteDelay=30000;
   let nextInvite=now()+inviteDelay, inviteTimer=0, singingTimer=0, playRequest=0;
-  const inviteStorageKey='galaxy-pet-song-invitation-v1';
-  function readInvitation() {
-    try { const value=localStorage.getItem(inviteStorageKey);if(value)return value; } catch {}
-    try { return sessionStorage.getItem(inviteStorageKey) || ''; } catch { return ''; }
-  }
-  let invitationRecord=readInvitation();
-  function rememberInvitation(value) {
-    invitationRecord=value;
-    try { localStorage.setItem(inviteStorageKey,value); } catch {}
-    try { sessionStorage.setItem(inviteStorageKey,value); } catch {}
-  }
+  // Each page visit gets one invitation; past visits never suppress it.
+  let invitationShown=false;
   try { tucked = localStorage.getItem('galaxy-pet-tucked') === 'true'; } catch {}
   const texts = {
     en:{
@@ -225,10 +216,8 @@
     invited=false;invitation.hidden=true;root.classList.remove('is-inviting');
   }
   function inviteToSing() {
-    // Persist the first display, even if it is ignored. Recheck for other tabs.
-    invitationRecord=invitationRecord || readInvitation();
-    if(invitationRecord)return;
-    rememberInvitation('seen');
+    if(invitationShown)return;
+    invitationShown=true;
     idle();silence();invited=true;invitation.hidden=false;root.classList.add('is-inviting');
     invitationText.textContent=copy().invite;constrainBubble(invitation);
     // Leave enough time to answer and never dismiss a focused keyboard choice.
@@ -282,7 +271,7 @@
     catch { playbackFailed(request); }
   }
   function startSong() {
-    rememberInvitation('accepted');dismissInvitation();silence();
+    invitationShown=true;dismissInvitation();silence();
     if(!performing){changePerformance(true);singingPose(0);}
     songToggle.focus({preventScroll:true});playSong();
   }
@@ -291,10 +280,10 @@
     else playSong();
   }
   songYes.addEventListener('click',startSong);
-  songNo.addEventListener('click',()=>{rememberInvitation('declined');dismissInvitation();});
+  songNo.addEventListener('click',dismissInvitation);
   songToggle.addEventListener('click',toggleSong);
   songStop.addEventListener('click',endSong);
-  song.addEventListener('playing',()=>{if(!performing){song.pause();return;}rememberInvitation('heard');audioPlaying=true;playPending=false;songError=false;updateSongControls();animateSinging();});
+  song.addEventListener('playing',()=>{if(!performing){song.pause();return;}audioPlaying=true;playPending=false;songError=false;updateSongControls();animateSinging();});
   song.addEventListener('pause',()=>{audioPlaying=false;playPending=false;updateSongControls();animateSinging();});
   song.addEventListener('waiting',()=>{audioPlaying=false;playPending=true;updateSongControls();animateSinging();});
   song.addEventListener('ended',endSong);
@@ -303,7 +292,7 @@
     clearTimeout(brainTimer);
     if (!blocked() && !drag) {
       const t=now();
-      if(!invitationRecord && !performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
+      if(!invitationShown && !performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
       if(!quietMode && !performing && !invited && !visibleMessage && !contextPending && t-lastPetInteraction>=quietDelay && (state==='idle' || state==='walk')) {
         quietMode=(!onFloor || reducedMotion.matches || hovered || focused || Math.random()<.6)?'coding':'walking';
         root.dataset.activity=quietMode;idle();nextWalk=t;
@@ -430,10 +419,10 @@
   // Mouse clicks should not leave the keyboard-focus pause latched indefinitely.
   greet.addEventListener('pointerup',()=>{if(!greet.matches(':focus-visible')){greet.blur();focused=false;}});
   function resize(){const oldFloor=onFloor;stopMotion();if(state==='walk')idle();if(drag)endDrag(null,true);if(state==='peek' || state==='docking'){finishPeek();return;}if(oldFloor)y=floor();draw();if(tucked)root.style.transform='none';}
-  window.addEventListener('storage',event=>{
-    if(event.key!==inviteStorageKey || !event.newValue)return;
-    invitationRecord=event.newValue;
-    if(invited)dismissInvitation();
+  window.addEventListener('pageshow',event=>{
+    if(!event.persisted)return;
+    // Browser Back/Forward may restore this document without rerunning the script.
+    dismissInvitation();invitationShown=false;nextInvite=now()+inviteDelay;
   });
   window.addEventListener('resize',resize);
   window.visualViewport?.addEventListener('resize',resize);
