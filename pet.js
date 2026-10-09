@@ -53,7 +53,8 @@
   let visibleMessage = null, contextPending = '', contextAt = 0;
   let lastReaction = -1;
   let invited=false, performing=false, audioPlaying=false, playPending=false, songError=false;
-  let nextInvite=now()+10000, inviteTimer=0, singingTimer=0, playRequest=0;
+  const inviteDelay=30000;
+  let nextInvite=now()+inviteDelay, inviteTimer=0, singingTimer=0, playRequest=0;
   const inviteStorageKey='galaxy-pet-song-invitation-v1';
   function readInvitation() {
     try { const value=localStorage.getItem(inviteStorageKey);if(value)return value; } catch {}
@@ -437,7 +438,7 @@
   window.addEventListener('resize',resize);
   window.visualViewport?.addEventListener('resize',resize);
   window.addEventListener('blur',()=>{if(drag)endDrag(null,true);stopMotion();if(state==='walk')idle();hovered=false;});
-  document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){dismissInvitation();clearTimeout(singingTimer);singingTimer=0;if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextInvite=now()+10000;nextWalk=now()+4000;animateSinging();brain();}});
+  document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){dismissInvitation();clearTimeout(singingTimer);singingTimer=0;if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextInvite=now()+inviteDelay;nextWalk=now()+4000;animateSinging();brain();}});
   reducedMotion.addEventListener('change',()=>{animateSinging();if(state==='walk' || state==='sip' || state==='idle')idle();nextWalk=now()+6000;});
   let previousLanguage=document.documentElement.lang;
   new MutationObserver(()=>{
