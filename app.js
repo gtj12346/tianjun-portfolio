@@ -135,8 +135,8 @@ document.querySelector('#close-case').addEventListener('click',()=>dialog.close(
 
 // Each locale has its own editorial hierarchy; English originals stay reversible.
 const translatedSections = [
- [".photo-label", "工作之外"],
- [".photo-caption", "悉尼，入夜後。"],
+ [".photo-label", "別拘著了，"],
+ [".photo-caption", "跟我一起來一杯吧！"],
  [".about-recognition", "<p class=\"small-title\">榮譽與獎勵 <span>2023</span></p><div class=\"award-line\"><div class=\"award-mark\" aria-hidden=\"true\"><i></i><b></b></div><div><h3>省級一等獎</h3><p>全國大學生廣告創意藝術大賽</p></div></div><ul class=\"award-list\"><li><span>2022–23</span><p>校級三等獎學金<br>優秀班幹部</p></li><li><span>2021–22</span><p>校級二等獎學金</p></li></ul>"],
  [".about-languages", "<p class=\"small-title\">語言能力</p><p><strong>普通話</strong> 母語 · 二級甲等</p><p><strong>英語</strong> 熟練的英文工作能力<br><span>雅思 6.5 · 閱讀 7.5</span></p><ul class=\"language-practice\"><li><strong>英文研究</strong><p>可獨立開展英文資料研究與競品分析。</p></li><li><strong>跨文化協作</strong><p>使用英語溝通需求，協同國際化團隊推進產品交付。</p></li></ul>"],
  ["nav a[href=\"/tianjun-portfolio/blog/\"]", "隨筆"],
@@ -264,6 +264,7 @@ function applyLanguage(next, persist = true) {
  document.querySelector('meta[name="description"]').content = chinese ? ui('Galaxy，高天駿的個人網站：AI 應用、Agent 工作流、實驗平臺、產品設計與增長實踐。') : 'Galaxy is the personal website of Tianjun Gao, building AI-powered products and workflows. Explore selected work in agent systems, research platforms, growth and GIS.';
  translatedSections.forEach(({element,en,zh})=>{element.innerHTML=chinese?ui(zh):en;element.lang=L.htmlLang(language);});
  document.querySelectorAll('[data-language]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.language===language)));
+ if(language==='zh-CN') document.querySelector('.photo-label').textContent='别拘着了，';
  document.querySelector('.about-photo img').alt=language==='zh-CN'?'夜晚在悉尼歌剧院旁的高天骏':chinese?'夜晚在悉尼歌劇院旁的高天駿':'Tianjun by the Sydney Opera House at night';
  document.querySelector('#copy-status').textContent='';
  document.querySelector('#composition-status').textContent='';
