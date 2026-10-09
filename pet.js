@@ -84,7 +84,7 @@
     const offset = clamp(x + size().w/2 - bw/2, 10, w-bw-10) - x;
     bubble.style.left = `${offset}px`;
     bubble.style.setProperty('--tail-x',`${clamp(size().w/2-offset,12,bw-12)}px`);
-    root.classList.toggle('bubble-below', y < bubble.offsetHeight+22);
+    root.classList.toggle('bubble-below', y < bubble.offsetHeight+48);
   }
   function draw() {
     const view = viewport(), dim = size();

@@ -24,10 +24,10 @@
 .controls-below .pet-hide{top:auto;bottom:-28px}
 .galaxy-pet:hover .pet-hide,.galaxy-pet:focus-within .pet-hide{opacity:1}
 .galaxy-pet:is([data-state="drag"],[data-state="docking"]) .pet-hide{opacity:0;pointer-events:none}
-.pet-bubble{position:absolute;bottom:calc(100% + 10px);width:max-content;max-width:min(230px,calc(100vw - 20px));padding:12px 15px;border:1px solid #d4d3ce;background:#f8f7f3;color:#171716;font-size:13px;line-height:1.6;white-space:pre-line;opacity:0;transform:translateY(5px);transition:opacity .2s,transform .2s;visibility:hidden}
+.pet-bubble{position:absolute;bottom:calc(100% + 38px);width:max-content;max-width:min(230px,calc(100vw - 20px));padding:12px 15px;border:1px solid #d4d3ce;background:#f8f7f3;color:#171716;font-size:13px;line-height:1.6;white-space:pre-line;opacity:0;transform:translateY(5px);transition:opacity .2s,transform .2s;visibility:hidden}
 .pet-bubble:after{content:'';position:absolute;left:var(--tail-x,32px);bottom:-5px;width:8px;height:8px;background:#f8f7f3;border-right:1px solid #d4d3ce;border-bottom:1px solid #d4d3ce;transform:rotate(45deg)}
 .is-chatting .pet-bubble{opacity:1;transform:translateY(0);visibility:visible}
-.bubble-below .pet-bubble{bottom:auto;top:calc(100% + 10px)}.bubble-below .pet-bubble:after{top:-5px;bottom:auto;transform:rotate(225deg)}
+.bubble-below .pet-bubble{bottom:auto;top:calc(100% + 38px)}.bubble-below .pet-bubble:after{top:-5px;bottom:auto;transform:rotate(225deg)}
 .pet-zzz{display:none;position:absolute;top:18%;right:0;color:#62625d;font:14px/1.3 monospace;letter-spacing:3px;pointer-events:none}
 .galaxy-pet[data-state="sleep"] .pet-zzz{display:block;animation:pet-doze 3s ease-in-out infinite}
 .galaxy-pet.is-tucked{left:auto;top:auto;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:44px}
