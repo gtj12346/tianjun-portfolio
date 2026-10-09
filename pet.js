@@ -47,6 +47,7 @@
   let hovered = false, focused = false, drag = null, swallowClick = false;
   let frame = 0, actionTimer = 0, bubbleTimer = 0, brainTimer = 0, idleTimer = 0, dragFrame = 0, dockTimer = 0, settleTimer = 0, move = null;
   let nextWalk = now()+3500;
+  const quietDelay=15000;
   let lastPetInteraction=now(), quietMode='';
   let nextSip = now()+between(4500,6500), idleBeat = 0;
   let visibleMessage = null, contextPending = '', contextAt = 0;
@@ -70,19 +71,19 @@
       name:'Galaxy companion',greet:'Say hi — drag to move',hide:'Tuck the companion away',restore:'Bring the companion back',peek:'Bring me back — click or drag left',
       help:'Click to interact. Drag to move; drag to the right edge to peek out. Arrow keys move the companion; Home returns it to the bottom. Escape closes its speech bubble.',
       drink:'Cheers!\nHere’s to good ideas.',invite:'Wanna hear me sing?',yes:'Sure',no:'No thanks',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
-      welcome:'G’day mate!\nHow’s your day going?',journal:'A few thoughts,\nstill taking shape.',usage:'Turns out, curiosity\nuses a lot of tokens.'
+      welcome:'Good day, mate!\nHow’s your day going?',journal:'A few thoughts,\nstill taking shape.',usage:'Turns out, curiosity\nuses a lot of tokens.'
     },
     'zh-Hans':{
       name:'Galaxy 小伙伴',greet:'点我互动，也可以拖动',hide:'收起小伙伴',restore:'叫小伙伴回来',peek:'点一下或向左拖，把我叫回来',
       help:'点击互动，拖动换位置，拖到右边缘可以探头。方向键移动，Home 键回到底边，Escape 键关闭气泡。',
       drink:'碰个杯，\n好想法慢慢聊。',invite:'你想听我唱歌吗？',yes:'可以',no:'不了',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
-      welcome:'哈喽，吃了吗您内？',journal:'一些还在生长的想法，\n慢慢看。',usage:'好奇心，\n原来真的会消耗 Token。'
+      welcome:'吃了吗您内？',journal:'一些还在生长的想法，\n慢慢看。',usage:'好奇心，\n原来真的会消耗 Token。'
     },
     'zh-Hant':{
       name:'Galaxy 小夥伴',greet:'點我互動，也可以拖動',hide:'收起小夥伴',restore:'叫小夥伴回來',peek:'點一下或向左拖，把我叫回來',
       help:'點擊互動，拖動換位置，拖到右邊緣可以探頭。方向鍵移動，Home 鍵回到底邊，Escape 鍵關閉氣泡。',
       drink:'碰個杯，\n好想法慢慢聊。',invite:'你想聽我唱歌嗎？',yes:'可以',no:'不了',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
-      welcome:'嗨，食咗飯未呀？',journal:'一些還在生長的想法，\n慢慢看。',usage:'好奇心，\n原來真的會消耗 Token。'
+      welcome:'食咗飯未呀？',journal:'一些還在生長的想法，\n慢慢看。',usage:'好奇心，\n原來真的會消耗 Token。'
     }
   };
   const copy = () => texts[document.documentElement.lang] || texts.en;
@@ -302,7 +303,7 @@
     if (!blocked() && !drag) {
       const t=now();
       if(!invitationRecord && !performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
-      if(!quietMode && !performing && !invited && !visibleMessage && !contextPending && t-lastPetInteraction>=10000 && (state==='idle' || state==='walk')) {
+      if(!quietMode && !performing && !invited && !visibleMessage && !contextPending && t-lastPetInteraction>=quietDelay && (state==='idle' || state==='walk')) {
         quietMode=(!onFloor || reducedMotion.matches || hovered || focused || Math.random()<.6)?'coding':'walking';
         root.dataset.activity=quietMode;idle();nextWalk=t;
       }
@@ -311,8 +312,7 @@
         if(contextPending && t>=contextAt && !visibleMessage) { say(contextPending); contextPending=''; nextWalk=t+5500; }
         else if(quietMode==='coding')startCoding();
         else if(quietMode==='walking' && t>=nextWalk){nextWalk=t+1000;walk();}
-        else if(!quietMode && t>=nextSip && !visibleMessage && restReady && !reducedMotion.matches) sip();
-        else if(!quietMode && t>=nextWalk) { nextWalk=t+between(6000,12000); walk(); }
+        else if(!quietMode && t>=nextSip && t-lastPetInteraction<quietDelay-2500 && !visibleMessage && restReady && !reducedMotion.matches) sip();
       }
     }
     brainTimer=setTimeout(brain,1000);
@@ -439,8 +439,17 @@
   window.addEventListener('blur',()=>{if(drag)endDrag(null,true);stopMotion();if(state==='walk')idle();hovered=false;});
   document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){dismissInvitation();clearTimeout(singingTimer);singingTimer=0;if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextInvite=now()+10000;nextWalk=now()+4000;animateSinging();brain();}});
   reducedMotion.addEventListener('change',()=>{animateSinging();if(state==='walk' || state==='sip' || state==='idle')idle();nextWalk=now()+6000;});
-  new MutationObserver(localize).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  // One greeting per page visit; only a manually triggered toast adds dialogue.
+  let previousLanguage=document.documentElement.lang;
+  new MutationObserver(()=>{
+    localize();
+    const language=document.documentElement.lang;
+    if(language===previousLanguage)return;
+    previousLanguage=language;contextPending='welcome';contextAt=now();
+    // Language greetings may accompany a performance without restarting audio.
+    // Keep an open invitation readable; greet after it closes instead.
+    if(!blocked() && !drag && !invited){contextPending='';say('welcome');}
+  }).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  // Greet on page entry and language changes; automatic activities stay quiet.
   const path=location.pathname;
   if(path.includes('/blog/'))contextPending='journal';
   else if(path.includes('/ai-usage/'))contextPending='usage';
