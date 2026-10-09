@@ -6,6 +6,9 @@
 .pet-idle,.pet-sprite{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .pet-idle{object-fit:contain}.pet-sprite{position:absolute;inset:0;visibility:hidden;background-size:400% 200%;background-repeat:no-repeat}
 .has-pose .pet-idle{visibility:hidden}.has-pose .pet-sprite{visibility:visible}
+.pet-coding{position:absolute;inset:0;display:block;visibility:hidden;background-size:200% 200%;background-repeat:no-repeat;pointer-events:none;transform-origin:50% 98%}
+.galaxy-pet[data-state="coding"] .pet-idle,.galaxy-pet[data-state="coding"] .pet-sprite{visibility:hidden}
+.galaxy-pet[data-state="coding"] .pet-coding{visibility:visible;animation:pet-desk-pop .38s cubic-bezier(.2,.8,.25,1.15) both}
 .galaxy-pet[data-state="idle"] .pet-actor{animation:pet-breathe 5.4s ease-in-out infinite}
 .galaxy-pet[data-state="drag"] .pet-greet{cursor:grabbing;transform:rotate(-5deg)}
 .pet-hide{position:absolute;top:0;right:-6px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #d4d3ce;border-radius:50%;background:#f8f7f3;font-size:18px;opacity:0;transition:opacity .18s;cursor:pointer}
@@ -23,6 +26,7 @@
 body:has(dialog[open]) .galaxy-pet{visibility:hidden}
 @keyframes pet-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
 @keyframes pet-doze{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes pet-desk-pop{from{opacity:0;transform:translateY(7px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:760px){.galaxy-pet{--pet-size:80px}.pet-hide{top:0;right:0;opacity:1}.pet-bubble{font-size:12px;max-width:min(220px,calc(100vw - 20px));padding:10px 13px}}
 @media(pointer:coarse){.pet-hide{width:44px;height:44px;right:-4px;opacity:1}}
-@media(prefers-reduced-motion:reduce){.galaxy-pet .pet-actor,.galaxy-pet .pet-zzz{animation:none!important}.pet-bubble,.pet-hide{transition:none}}
+@media(prefers-reduced-motion:reduce){.galaxy-pet .pet-actor,.galaxy-pet .pet-zzz,.galaxy-pet .pet-coding{animation:none!important}.pet-bubble,.pet-hide{transition:none}}
