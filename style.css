@@ -172,3 +172,16 @@ header nav a{white-space:nowrap}header nav a[aria-current="page"]{font-weight:70
 .glass-explore [data-project-nav]{--project-accent:#62625d}
 .glass-explore .explore-menu a:focus-visible{outline:2px solid var(--project-accent);outline-offset:-2px}
 @media(forced-colors:active){.glass-explore .explore-menu a[aria-current="page"]{outline:2px solid Highlight;outline-offset:-2px}}
+
+/* A personal photograph pairs with the introduction, before the toolkit. */
+.about-opening{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:7%;align-items:center;margin-bottom:60px}
+.about-copy{min-width:0}
+#about .about-copy .about-intro{max-width:29em;margin:28px 0 0}
+.about-photo{width:min(100%,320px);margin:0;justify-self:center;padding:10px 10px 0;background:var(--paper);border:1px solid #deddd7}
+.about-photo img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
+.about-photo figcaption{display:flex;flex-direction:column;gap:7px;padding:16px 4px 18px}
+.photo-label{font:10px/1.5 'Courier New',monospace;letter-spacing:1.6px;color:#62625d}
+.photo-caption{font-size:13px;line-height:1.5}
+html:lang(zh) .photo-label{font-family:inherit;letter-spacing:.14em}
+html:lang(zh) .photo-caption{letter-spacing:.04em}
+@media(max-width:760px){.about-opening{grid-template-columns:1fr;gap:30px;margin-bottom:42px}.about-photo{width:min(100%,280px);justify-self:start}#about .about-copy .about-intro{margin-top:24px}}
