@@ -1,23 +1,29 @@
+.pet-stage{position:fixed;inset:0;z-index:8;overflow:hidden;pointer-events:none;contain:layout paint style}
 .galaxy-pet{position:fixed;left:0;top:0;--pet-size:104px;width:var(--pet-size);z-index:8;pointer-events:none;font-family:Arial,Helvetica,sans-serif;--facing:1}
+.galaxy-pet.is-settling{transition:transform .26s cubic-bezier(.22,.7,.25,1)}
+.galaxy-pet[data-state="drag"]{will-change:transform}
 .galaxy-pet [hidden]{display:none!important}.pet-body{position:relative}
-.pet-greet,.pet-hide,.pet-return{pointer-events:auto;appearance:none;color:#171716}
+.pet-greet,.pet-hide,.pet-return,.pet-peek{pointer-events:auto;appearance:none;color:#171716}
 .pet-greet{display:block;width:100%;border:0;padding:0;background:transparent;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;transform-origin:50% 95%;-webkit-tap-highlight-color:transparent}
 .pet-actor{position:relative;display:block;width:100%;aspect-ratio:2/3;transform:scaleX(var(--facing));transform-origin:50% 98%}
 .pet-idle,.pet-sprite{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .pet-idle{object-fit:contain}.pet-sprite{position:absolute;inset:0;visibility:hidden;background-size:400% 200%;background-repeat:no-repeat}
 .has-pose .pet-idle{visibility:hidden}.has-pose .pet-sprite{visibility:visible}
 .pet-rest{position:absolute;inset:0;visibility:hidden;background-size:400% 200%;background-repeat:no-repeat;pointer-events:none}
-.has-rest:is([data-state="idle"],[data-state="sip"]) .pet-idle{visibility:hidden}
-.has-rest:is([data-state="idle"],[data-state="sip"]) .pet-rest{visibility:visible}
+.has-rest:is([data-state="idle"],[data-state="sip"],[data-state="drag"],[data-state="docking"]) .pet-idle{visibility:hidden}
+.has-rest:is([data-state="idle"],[data-state="sip"],[data-state="drag"],[data-state="docking"]) .pet-rest{visibility:visible}
 .pet-coding{position:absolute;inset:0;display:block;visibility:hidden;background-size:200% 200%;background-repeat:no-repeat;pointer-events:none;transform-origin:50% 98%}
 .galaxy-pet[data-state="coding"] .pet-idle,.galaxy-pet[data-state="coding"] .pet-sprite{visibility:hidden}
 .galaxy-pet[data-state="coding"] .pet-coding{visibility:visible;animation:pet-desk-pop .38s cubic-bezier(.2,.8,.25,1.15) both}
 .galaxy-pet[data-state="idle"] .pet-actor{animation:pet-breathe 3.6s ease-in-out infinite,pet-sway 7.8s ease-in-out infinite}
 .galaxy-pet[data-state="sleep"] .pet-actor{animation:pet-breathe 4.8s ease-in-out infinite}
 .galaxy-pet.is-paused *{animation-play-state:paused!important}
-.galaxy-pet[data-state="drag"] .pet-greet{cursor:grabbing;transform:rotate(-5deg)}
-.pet-hide{position:absolute;top:0;right:-6px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #d4d3ce;border-radius:50%;background:#f8f7f3;font-size:18px;opacity:0;transition:opacity .18s;cursor:pointer}
+.galaxy-pet[data-state="drag"] .pet-greet{cursor:grabbing}
+.pet-hide{position:absolute;top:-28px;right:-4px;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;background:transparent;opacity:0;transition:opacity .18s;cursor:pointer}
+.pet-hide span{display:grid;place-items:center;box-sizing:border-box;width:22px;height:22px;border:1px solid #d4d3ce;border-radius:50%;background:#f8f7f3;font:15px/1 Arial,sans-serif}
+.controls-below .pet-hide{top:auto;bottom:-28px}
 .galaxy-pet:hover .pet-hide,.galaxy-pet:focus-within .pet-hide{opacity:1}
+.galaxy-pet:is([data-state="drag"],[data-state="docking"]) .pet-hide{opacity:0;pointer-events:none}
 .pet-bubble{position:absolute;bottom:calc(100% + 10px);width:max-content;max-width:min(230px,calc(100vw - 20px));padding:12px 15px;border:1px solid #d4d3ce;background:#f8f7f3;color:#171716;font-size:13px;line-height:1.6;white-space:pre-line;opacity:0;transform:translateY(5px);transition:opacity .2s,transform .2s;visibility:hidden}
 .pet-bubble:after{content:'';position:absolute;left:var(--tail-x,32px);bottom:-5px;width:8px;height:8px;background:#f8f7f3;border-right:1px solid #d4d3ce;border-bottom:1px solid #d4d3ce;transform:rotate(45deg)}
 .is-chatting .pet-bubble{opacity:1;transform:translateY(0);visibility:visible}
@@ -27,12 +33,19 @@
 .galaxy-pet.is-tucked{left:auto;top:auto;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:44px}
 .pet-return{display:block;width:44px;height:44px;overflow:hidden;border:1px solid #d4d3ce;border-radius:50%;padding:3px;background:#f8f7f3;cursor:pointer}
 .pet-return img{display:block;width:36px;height:54px;max-width:none;pointer-events:none}
+.pet-peek{position:absolute;left:0;top:0;width:58px;height:82px;overflow:hidden;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.pet-peek img{position:absolute;width:84px;height:126px;max-width:none;left:-9px;top:-7px;transform:rotate(-12deg);transform-origin:70% 45%;pointer-events:none;-webkit-user-drag:none}
+.galaxy-pet[data-state="peek"] .pet-peek{animation:pet-peek-in .45s cubic-bezier(.2,.8,.25,1) both}
+.galaxy-pet[data-state="peek"] .pet-peek img{animation:pet-peek-look 5.8s ease-in-out .45s infinite}
+.galaxy-pet[data-state="drag"] .pet-peek{opacity:0;pointer-events:none}
 .galaxy-pet button:focus-visible{outline:2px solid #171716;outline-offset:4px}
 body:has(dialog[open]) .galaxy-pet{visibility:hidden}
 @keyframes pet-breathe{0%,100%{scale:1 1}50%{scale:1.008 1.018}}
 @keyframes pet-sway{0%,100%{rotate:0deg}25%{rotate:-.9deg}65%{rotate:.75deg}}
 @keyframes pet-doze{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
 @keyframes pet-desk-pop{from{opacity:0;transform:translateY(7px) scale(.88)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:760px){.galaxy-pet{--pet-size:80px}.pet-hide{top:0;right:0;opacity:1}.pet-bubble{font-size:12px;max-width:min(220px,calc(100vw - 20px));padding:10px 13px}}
-@media(pointer:coarse){.pet-hide{width:44px;height:44px;right:-4px;opacity:1}}
-@media(prefers-reduced-motion:reduce){.galaxy-pet .pet-actor,.galaxy-pet .pet-zzz,.galaxy-pet .pet-coding{animation:none!important}.pet-bubble,.pet-hide{transition:none}}
+@keyframes pet-peek-in{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes pet-peek-look{0%,100%{transform:translateX(0) rotate(-12deg)}48%{transform:translateX(3px) rotate(-7deg)}}
+@media(max-width:760px){.galaxy-pet{--pet-size:80px}.pet-hide{top:-38px;right:-4px;width:40px;height:40px;opacity:1}.pet-hide span{width:20px;height:20px;font-size:14px}.controls-below .pet-hide{top:auto;bottom:-38px}.pet-peek{width:48px;height:68px}.pet-peek img{width:72px;height:108px;left:-9px;top:-5px}.pet-bubble{font-size:12px;max-width:min(220px,calc(100vw - 20px));padding:10px 13px}}
+@media(pointer:coarse){.pet-hide{width:44px;height:44px;top:-40px;right:-6px;opacity:1}.pet-hide span{width:20px;height:20px;font-size:14px}.controls-below .pet-hide{top:auto;bottom:-40px}}
+@media(prefers-reduced-motion:reduce){.galaxy-pet .pet-actor,.galaxy-pet .pet-zzz,.galaxy-pet .pet-coding,.galaxy-pet .pet-peek,.galaxy-pet .pet-peek img{animation:none!important}.galaxy-pet,.pet-bubble,.pet-hide{transition:none!important}}
