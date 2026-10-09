@@ -200,7 +200,7 @@
     if(tucked) root.style.transform='none'; else draw();
     if(focus)(tucked?restore:greet).focus({preventScroll:true});
   }
-  const peekSize=()=>({w:viewport().w<=760?48:58,h:viewport().w<=760?68:82});
+  const peekSize=()=>({w:viewport().w<=760?48:58,h:viewport().w<=760?54:62});
   function placePeek() {
     const view=viewport(),dim=peekSize();
     x=view.w-dim.w;y=clamp(y,10,view.h-dim.h-10);
