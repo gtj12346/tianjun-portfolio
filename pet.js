@@ -1,10 +1,10 @@
 (() => {
   if (document.querySelector('.galaxy-pet')) return;
   const asset = name => new URL(`assets/pet/${name}`, document.currentScript.src).href;
-  const portrait = asset('companion.webp'), actions = asset('actions.webp'), coding = asset('coding.webp'), resting = asset('idle.webp'), peeking = asset('peek-frame.webp');
+  const portrait = asset('companion.webp'), actions = asset('actions.webp'), coding = asset('coding.webp'), resting = asset('idle.webp'), peeking = asset('peek-frame.webp'), singing = asset('singing.webp');
   const root = document.createElement('aside');
   root.className = 'galaxy-pet';
-  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span></span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button></div><button class="pet-peek" type="button" hidden><img src="${peeking}" alt="" width="86" height="129" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
+  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-invite" hidden><p class="pet-invite-text" id="pet-song-question" role="status"></p><div class="pet-song-choices" role="group" aria-labelledby="pet-song-question"><button class="pet-song-yes" type="button"></button><button class="pet-song-ok" type="button"></button></div></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span><span class="pet-singing" aria-hidden="true"></span></span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button><div class="pet-song-controls" hidden><button class="pet-song-toggle" type="button"></button><button class="pet-song-stop" type="button"><span aria-hidden="true">×</span></button><span class="pet-song-status" role="status" hidden></span></div></div><button class="pet-peek" type="button" hidden><img src="${peeking}" alt="" width="86" height="129" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
   // Clip only the companion layer, so dragging off-screen never widens the page.
   const stage=document.createElement('div');stage.className='pet-stage';stage.append(root);document.body.append(stage);
   const greet = root.querySelector('.pet-greet'), body = root.querySelector('.pet-body');
@@ -14,6 +14,13 @@
   const help = root.querySelector('#pet-help');
   const codingSprite = root.querySelector('.pet-coding');
   const restSprite = root.querySelector('.pet-rest');
+  const singingSprite = root.querySelector('.pet-singing');
+  const invitation = root.querySelector('.pet-invite'), invitationText = root.querySelector('.pet-invite-text');
+  const songYes = root.querySelector('.pet-song-yes'), songOK = root.querySelector('.pet-song-ok');
+  const songControls = root.querySelector('.pet-song-controls'), songToggle = root.querySelector('.pet-song-toggle');
+  const songStop = root.querySelector('.pet-song-stop'), songStatus = root.querySelector('.pet-song-status');
+  const song = document.createElement('audio');song.preload='none';song.src=asset('song.mp3');song.hidden=true;root.append(song);
+  singingSprite.style.backgroundImage = `url("${singing}")`;
   sprite.style.backgroundImage = `url("${actions}")`;
   codingSprite.style.backgroundImage = `url("${coding}")`;
   restSprite.style.backgroundImage = `url("${resting}")`;
@@ -33,7 +40,7 @@
   const now = () => performance.now();
   const between = (a,b) => a + Math.random() * (b-a);
   const clamp = (n,a,b) => Math.min(Math.max(n,a),Math.max(a,b));
-  const size = () => { const w=parseFloat(getComputedStyle(root).getPropertyValue('--pet-size'));return {w,h:w*1.5}; };
+  const size = () => { const w=parseFloat(getComputedStyle(root).getPropertyValue('--pet-size'));return {w,h:w*1.5+(performing?38:0)}; };
   const viewport = () => ({w:document.documentElement.clientWidth,h:window.innerHeight});
   const floor = () => Math.max(10,viewport().h-size().h-14);
   let tucked = false, x = 0, y = 0, onFloor = true, state = 'idle';
@@ -44,21 +51,26 @@
   let nextSip = now()+between(4500,6500), idleBeat = 0;
   let visibleMessage = null, contextPending = '', contextAt = 0;
   let lastReaction = -1;
+  let invited=false, performing=false, audioPlaying=false, playPending=false, songError=false;
+  let nextInvite=now()+10000, inviteTimer=0, singingTimer=0, playRequest=0;
   try { tucked = localStorage.getItem('galaxy-pet-tucked') === 'true'; } catch {}
   const texts = {
     en:{
       name:'Galaxy companion',greet:'Say hi — drag to move',hide:'Tuck the companion away',restore:'Bring the companion back',peek:'Bring me back — click or drag left',
       help:'Click to interact. Drag to move; drag to the right edge to peek out. Arrow keys move the companion; Home returns it to the bottom. Escape closes its speech bubble.',
+      invite:'Wanna hear me sing?',yes:'Yes!',okay:'Go for it',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
       welcome:'G’day mate!\nHow’s your day going?',journal:'A few thoughts,\nstill taking shape.',usage:'Turns out, curiosity\nuses a lot of tokens.'
     },
     'zh-Hans':{
       name:'Galaxy 小伙伴',greet:'点我互动，也可以拖动',hide:'收起小伙伴',restore:'叫小伙伴回来',peek:'点一下或向左拖，把我叫回来',
       help:'点击互动，拖动换位置，拖到右边缘可以探头。方向键移动，Home 键回到底边，Escape 键关闭气泡。',
+      invite:'你想听我唱歌吗？',yes:'想',okay:'可以',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
       welcome:'哈喽，吃了吗您内？',journal:'一些还在生长的想法，\n慢慢看。',usage:'好奇心，\n原来真的会消耗 Token。'
     },
     'zh-Hant':{
       name:'Galaxy 小夥伴',greet:'點我互動，也可以拖動',hide:'收起小夥伴',restore:'叫小夥伴回來',peek:'點一下或向左拖，把我叫回來',
       help:'點擊互動，拖動換位置，拖到右邊緣可以探頭。方向鍵移動，Home 鍵回到底邊，Escape 鍵關閉氣泡。',
+      invite:'你想聽我唱歌嗎？',yes:'想',okay:'可以',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
       welcome:'嗨，食咗飯未呀？',journal:'一些還在生長的想法，\n慢慢看。',usage:'好奇心，\n原來真的會消耗 Token。'
     }
   };
@@ -90,12 +102,12 @@
       idleTimer=setTimeout(()=>{idleTimer=0;if(state==='idle'){restPose();scheduleIdle();}},index===1?150:1050);
     },delay);
   }
-  function constrainBubble() {
-    const w = viewport().w, bw = bubble.offsetWidth || 220;
+  function constrainBubble(panel=bubble) {
+    const w = viewport().w, bw = panel.offsetWidth || 220;
     const offset = clamp(x + size().w/2 - bw/2, 10, w-bw-10) - x;
-    bubble.style.left = `${offset}px`;
-    bubble.style.setProperty('--tail-x',`${clamp(size().w/2-offset,12,bw-12)}px`);
-    root.classList.toggle('bubble-below', y < bubble.offsetHeight+48);
+    panel.style.left = `${offset}px`;
+    panel.style.setProperty('--tail-x',`${clamp(size().w/2-offset,12,bw-12)}px`);
+    root.classList.toggle('bubble-below', y < panel.offsetHeight+48);
   }
   function draw() {
     const view = viewport(), dim = size();
@@ -103,6 +115,7 @@
     root.style.transform = `translate3d(${x}px,${y}px,0)`;
     root.classList.toggle('controls-below',y<44);
     if (visibleMessage) constrainBubble();
+    if(invited)constrainBubble(invitation);
   }
   function silence() { clearTimeout(bubbleTimer); visibleMessage = null; bubble.textContent = ''; root.classList.remove('is-chatting'); }
   function say(key) {
@@ -117,12 +130,16 @@
     const text = copy(); root.setAttribute('aria-label',text.name);
     for (const [button,key] of [[greet,'greet'],[hide,'hide'],[restore,'restore'],[peek,'peek']]) { button.setAttribute('aria-label',text[key]); button.title = text[key]; }
     help.textContent = text.help;
+    invitationText.textContent=text.invite;songYes.textContent=text.yes;songOK.textContent=text.okay;
+    songStop.setAttribute('aria-label',text.stop);songStop.title=text.stop;updateSongControls();
+    if(invited)constrainBubble(invitation);
     if (visibleMessage) { bubble.textContent = text[visibleMessage]; constrainBubble(); }
   }
   function stopMotion() { cancelAnimationFrame(frame); frame = 0; move = null; }
-  function idle() { stopMotion(); clearTimeout(actionTimer);clearTimeout(dockTimer); setState('idle'); pose(); root.style.setProperty('--facing',1); }
+  function idle() { stopMotion(); clearTimeout(actionTimer);clearTimeout(dockTimer); setState(performing?'singing':'idle'); pose(); root.style.setProperty('--facing',1); }
   function blocked() { return tucked || state==='peek' || state==='docking' || document.hidden || !!document.querySelector('dialog[open]') || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '') || document.activeElement?.isContentEditable; }
   function react(kind) {
+    dismissInvitation();
     if(kind==='coding') { if(startCoding())return; kind='smile'; }
     if(kind==='drink' && restReady) { sip();return; }
     idle(); setState(kind); nextWalk=now()+between(8000,13000);
@@ -182,11 +199,88 @@
     };
     frame=requestAnimationFrame(tick);
   }
+  function dismissInvitation(reschedule=true) {
+    clearTimeout(inviteTimer);inviteTimer=0;
+    if(invitation.contains(document.activeElement))greet.focus({preventScroll:true});
+    invited=false;invitation.hidden=true;root.classList.remove('is-inviting');
+    if(reschedule)nextInvite=now()+10000;
+  }
+  function inviteToSing() {
+    idle();silence();invited=true;invitation.hidden=false;root.classList.add('is-inviting');
+    invitationText.textContent=copy().invite;constrainBubble(invitation);nextInvite=now()+10000;
+    // Leave enough time to answer and never dismiss a focused keyboard choice.
+    const expire=()=>{
+      if(invitation.contains(document.activeElement)){inviteTimer=setTimeout(expire,1000);return;}
+      dismissInvitation(false);
+    };
+    inviteTimer=setTimeout(expire,6000);
+  }
+  function updateSongControls() {
+    const text=copy(),key=songError?'retry':playPending?'loading':audioPlaying?'pause':'resume';
+    songToggle.textContent=text[key];songToggle.setAttribute('aria-label',text[key]);
+    songStatus.hidden=!songError;songStatus.textContent=songError?text.audioError:'';
+    songControls.hidden=!performing;
+  }
+  function singingPose(index) {
+    singingSprite.style.backgroundPosition=`${index%2*100}% ${index>=2?100:0}%`;
+    singingSprite.style.transform=`translateX(${index%2?2.8:-2.8}%)`;
+  }
+  function animateSinging() {
+    clearTimeout(singingTimer);singingTimer=0;
+    if(!performing || document.hidden || tucked || state==='peek' || state==='docking')return;
+    if(!audioPlaying || reducedMotion.matches){singingPose(0);return;}
+    const sequence=[0,1,0,3,2,1,0,3];
+    singingPose(sequence[Math.floor(song.currentTime/.22)%sequence.length]);
+    singingTimer=setTimeout(animateSinging,110);
+  }
+  function changePerformance(active) {
+    const atEdge=state==='peek' || state==='docking';
+    const previous=size();performing=active;root.classList.toggle('is-performing',active);
+    const current=size();x+=(previous.w-current.w)/2;y+=previous.h-current.h;
+    if(onFloor)y=floor();idle();draw();updateSongControls();
+    if(atEdge)finishPeek();
+  }
+  function endSong() {
+    const restoreFocus=songControls.contains(document.activeElement),keyboardFocus=songToggle.matches(':focus-visible') || songStop.matches(':focus-visible');
+    ++playRequest;playPending=false;audioPlaying=false;songError=false;
+    song.pause();song.currentTime=0;clearTimeout(singingTimer);singingTimer=0;
+    if(performing)changePerformance(false);
+    if(restoreFocus){if(keyboardFocus)greet.focus({preventScroll:true});else document.activeElement?.blur();}
+    nextInvite=now()+10000;nextWalk=now()+7000;nextCoding=now()+20000;nextSip=now()+14000;
+  }
+  function playbackFailed(request) {
+    if(request!==playRequest || !performing)return;
+    playPending=false;audioPlaying=false;songError=true;animateSinging();updateSongControls();
+  }
+  function playSong() {
+    const request=++playRequest;playPending=true;songError=false;updateSongControls();
+    // Call play directly in the click handler so mobile browsers allow audio.
+    try { const result=song.play();if(result?.catch)result.catch(()=>playbackFailed(request)); }
+    catch { playbackFailed(request); }
+  }
+  function startSong() {
+    dismissInvitation();silence();
+    if(!performing){changePerformance(true);singingPose(0);}
+    songToggle.focus({preventScroll:true});playSong();
+  }
+  function toggleSong() {
+    if(playPending || !song.paused){++playRequest;playPending=false;song.pause();audioPlaying=false;animateSinging();updateSongControls();}
+    else playSong();
+  }
+  songYes.addEventListener('click',startSong);songOK.addEventListener('click',startSong);
+  songToggle.addEventListener('click',toggleSong);
+  songStop.addEventListener('click',endSong);
+  song.addEventListener('playing',()=>{if(!performing){song.pause();return;}audioPlaying=true;playPending=false;songError=false;updateSongControls();animateSinging();});
+  song.addEventListener('pause',()=>{audioPlaying=false;playPending=false;updateSongControls();animateSinging();});
+  song.addEventListener('waiting',()=>{audioPlaying=false;playPending=true;updateSongControls();animateSinging();});
+  song.addEventListener('ended',endSong);
+  song.addEventListener('error',()=>playbackFailed(playRequest));
   function brain() {
     clearTimeout(brainTimer);
     if (!blocked() && !drag) {
       const t=now();
-      if(state==='idle') {
+      if(!performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
+      if(state==='idle' && !invited && !performing) {
         if(!idleTimer)scheduleIdle();
         if(contextPending && t>=contextAt) { say(contextPending); contextPending=''; nextWalk=t+5500; }
         else if(t>=nextCoding && !hovered && !focused) { nextCoding=t+12000; startCoding(); }
@@ -213,7 +307,7 @@
     setState('peek');body.hidden=true;peek.hidden=false;placePeek();
   }
   function dock() {
-    idle();silence();setState('docking');onFloor=false;peek.hidden=true;
+    dismissInvitation();clearTimeout(singingTimer);singingTimer=0;idle();silence();setState('docking');onFloor=false;peek.hidden=true;
     root.classList.add('is-settling');
     x=viewport().w+12;root.style.transform=`translate3d(${x}px,${y}px,0)`;
     if(reducedMotion.matches)finishPeek();else dockTimer=setTimeout(finishPeek,260);
@@ -224,12 +318,13 @@
     root.classList.add('is-settling');draw();
     clearTimeout(settleTimer);settleTimer=setTimeout(()=>root.classList.remove('is-settling'),300);
     nextWalk=now()+9000;nextSip=now()+15000;nextCoding=now()+20000;
-    if(focus)greet.focus({preventScroll:true});
+    animateSinging();if(focus)greet.focus({preventScroll:true});
   }
   peek.addEventListener('click',event=>{if(swallowClick){swallowClick=false;event.preventDefault();return;}reveal(event.detail===0);});
   peek.addEventListener('keydown',event=>{if(event.key==='ArrowLeft' || event.key==='Home'){event.preventDefault();reveal(true);if(event.key==='Home'){onFloor=true;y=floor();draw();}}});
   greet.addEventListener('click',event=>{
     if(swallowClick){swallowClick=false;event.preventDefault();return;}
+    if(performing){toggleSong();return;}
     let index=Math.floor(Math.random()*4);if(index===lastReaction)index=(index+1)%4;lastReaction=index;
     react(['wave','smile','drink','coding'][index]);
   });
@@ -257,7 +352,7 @@
     const dx=event.clientX-drag.px,dy=event.clientY-drag.py;
     if(!drag.started && Math.hypot(dx,dy)<(event.pointerType==='touch'?6:3))return;
     if(!drag.started){
-      drag.started=true;silence();setState('drag');pose();restPose();root.style.setProperty('--facing',1);body.hidden=false;
+      drag.started=true;dismissInvitation();silence();setState('drag');pose();restPose();root.style.setProperty('--facing',1);body.hidden=false;
       if(drag.fromPeek)drag.tx=drag.px-drag.dim.w/2;
     }
     event.preventDefault();
@@ -277,7 +372,7 @@
       else if(ended.lastX>=ended.view.w-18 || x+ended.dim.w*.65>=ended.view.w){dock();return;}
       else {onFloor=Math.abs(y-floor())<32;if(onFloor)y=floor();}
       peek.hidden=true;body.hidden=false;
-      idle();nextWalk=now()+9000;nextCoding=now()+between(18000,28000);nextSip=now()+between(12000,22000);draw();
+      idle();nextWalk=now()+9000;nextCoding=now()+between(18000,28000);nextSip=now()+between(12000,22000);draw();animateSinging();
     } else if(!ended.fromPeek) idle();
   }
   root.addEventListener('pointerup',event=>endDrag(event));
@@ -296,8 +391,8 @@
   root.addEventListener('pointerleave',()=>{hovered=false;nextWalk=now()+2500;});
   root.addEventListener('focusin',()=>{focused=true;if(state==='walk')idle();});
   root.addEventListener('focusout',event=>{if(!root.contains(event.relatedTarget))focused=false;});
-  root.addEventListener('keydown',event=>{if(event.key==='Escape')silence();});
-  hide.addEventListener('click',()=>{tucked=true;idle();silence();renderTucked(true);try{localStorage.setItem('galaxy-pet-tucked','true');}catch{}});
+  root.addEventListener('keydown',event=>{if(event.key==='Escape'){silence();dismissInvitation();}});
+  hide.addEventListener('click',()=>{dismissInvitation();endSong();tucked=true;idle();silence();renderTucked(true);try{localStorage.setItem('galaxy-pet-tucked','true');}catch{}});
   restore.addEventListener('click',event=>{tucked=false;idle();if(onFloor)y=floor();renderTucked(true);if(event.detail>0){greet.blur();focused=false;}nextWalk=now()+6000;try{localStorage.setItem('galaxy-pet-tucked','false');}catch{}});
   // Mouse clicks should not leave the keyboard-focus pause latched indefinitely.
   greet.addEventListener('pointerup',()=>{if(!greet.matches(':focus-visible')){greet.blur();focused=false;}});
@@ -305,8 +400,8 @@
   window.addEventListener('resize',resize);
   window.visualViewport?.addEventListener('resize',resize);
   window.addEventListener('blur',()=>{if(drag)endDrag(null,true);stopMotion();if(state==='walk')idle();hovered=false;});
-  document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextWalk=now()+4000;brain();}});
-  reducedMotion.addEventListener('change',()=>{if(state==='walk' || state==='sip' || state==='idle')idle();nextWalk=now()+6000;});
+  document.addEventListener('visibilitychange',()=>{root.classList.toggle('is-paused',document.hidden);if(document.hidden){dismissInvitation();clearTimeout(singingTimer);singingTimer=0;if(drag)endDrag(null,true);stopMotion();clearTimeout(actionTimer);clearTimeout(brainTimer);clearTimeout(idleTimer);clearTimeout(settleTimer);idleTimer=0;silence();if(state==='docking')finishPeek();else if(state!=='peek')idle();}else{nextInvite=now()+10000;nextWalk=now()+4000;animateSinging();brain();}});
+  reducedMotion.addEventListener('change',()=>{animateSinging();if(state==='walk' || state==='sip' || state==='idle')idle();nextWalk=now()+6000;});
   new MutationObserver(localize).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   // One greeting per page visit; scrolling and actions stay quiet.
   const path=location.pathname;
