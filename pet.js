@@ -4,7 +4,7 @@
   const portrait = asset('companion.webp'), actions = asset('actions.webp'), coding = asset('coding.webp'), resting = asset('idle.webp'), peeking = asset('peek-frame.webp'), singing = asset('singing.webp');
   const root = document.createElement('aside');
   root.className = 'galaxy-pet';
-  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-invite" hidden><p class="pet-invite-text" id="pet-song-question" role="status"></p><div class="pet-song-choices" role="group" aria-labelledby="pet-song-question"><button class="pet-song-yes" type="button"></button><button class="pet-song-ok" type="button"></button></div></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span><span class="pet-singing" aria-hidden="true"></span></span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button><div class="pet-song-controls" hidden><button class="pet-song-toggle" type="button"></button><button class="pet-song-stop" type="button"><span aria-hidden="true">×</span></button><span class="pet-song-status" role="status" hidden></span></div></div><button class="pet-peek" type="button" hidden><img src="${peeking}" alt="" width="86" height="129" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
+  root.innerHTML = `<div class="pet-bubble" role="status" aria-live="polite"></div><div class="pet-invite" hidden><p class="pet-invite-text" id="pet-song-question" role="status"></p><div class="pet-song-choices" role="group" aria-labelledby="pet-song-question"><button class="pet-song-yes" type="button"></button><button class="pet-song-no" type="button"></button></div></div><div class="pet-body"><button class="pet-greet" type="button" aria-describedby="pet-help"><span class="pet-actor"><img class="pet-idle" src="${portrait}" alt="" width="100" height="150" draggable="false"><span class="pet-sprite" aria-hidden="true"></span><span class="pet-rest" aria-hidden="true"></span><span class="pet-coding" aria-hidden="true"></span><span class="pet-singing" aria-hidden="true"></span></span></button><button class="pet-hide" type="button"><span aria-hidden="true">×</span></button><div class="pet-song-controls" hidden><button class="pet-song-toggle" type="button"></button><button class="pet-song-stop" type="button"><span aria-hidden="true">×</span></button><span class="pet-song-status" role="status" hidden></span></div></div><button class="pet-peek" type="button" hidden><img src="${peeking}" alt="" width="86" height="129" draggable="false"></button><button class="pet-return" type="button" hidden><img src="${portrait}" alt="" draggable="false"></button><span id="pet-help" class="sr-only"></span>`;
   // Clip only the companion layer, so dragging off-screen never widens the page.
   const stage=document.createElement('div');stage.className='pet-stage';stage.append(root);document.body.append(stage);
   const greet = root.querySelector('.pet-greet'), body = root.querySelector('.pet-body');
@@ -16,7 +16,7 @@
   const restSprite = root.querySelector('.pet-rest');
   const singingSprite = root.querySelector('.pet-singing');
   const invitation = root.querySelector('.pet-invite'), invitationText = root.querySelector('.pet-invite-text');
-  const songYes = root.querySelector('.pet-song-yes'), songOK = root.querySelector('.pet-song-ok');
+  const songYes = root.querySelector('.pet-song-yes'), songNo = root.querySelector('.pet-song-no');
   const songControls = root.querySelector('.pet-song-controls'), songToggle = root.querySelector('.pet-song-toggle');
   const songStop = root.querySelector('.pet-song-stop'), songStatus = root.querySelector('.pet-song-status');
   const song = document.createElement('audio');song.preload='none';song.src=asset('song.mp3');song.hidden=true;root.append(song);
@@ -53,24 +53,35 @@
   let lastReaction = -1;
   let invited=false, performing=false, audioPlaying=false, playPending=false, songError=false;
   let nextInvite=now()+10000, inviteTimer=0, singingTimer=0, playRequest=0;
+  const inviteStorageKey='galaxy-pet-song-invitation-v1';
+  function readInvitation() {
+    try { const value=localStorage.getItem(inviteStorageKey);if(value)return value; } catch {}
+    try { return sessionStorage.getItem(inviteStorageKey) || ''; } catch { return ''; }
+  }
+  let invitationRecord=readInvitation();
+  function rememberInvitation(value) {
+    invitationRecord=value;
+    try { localStorage.setItem(inviteStorageKey,value); } catch {}
+    try { sessionStorage.setItem(inviteStorageKey,value); } catch {}
+  }
   try { tucked = localStorage.getItem('galaxy-pet-tucked') === 'true'; } catch {}
   const texts = {
     en:{
       name:'Galaxy companion',greet:'Say hi — drag to move',hide:'Tuck the companion away',restore:'Bring the companion back',peek:'Bring me back — click or drag left',
       help:'Click to interact. Drag to move; drag to the right edge to peek out. Arrow keys move the companion; Home returns it to the bottom. Escape closes its speech bubble.',
-      invite:'Wanna hear me sing?',yes:'Yes!',okay:'Go for it',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
+      invite:'Wanna hear me sing?',yes:'Sure',no:'No thanks',pause:'Pause',resume:'Play',loading:'Loading…',stop:'End the song',retry:'Try again',audioError:'Couldn’t play this time. Try again?',
       welcome:'G’day mate!\nHow’s your day going?',journal:'A few thoughts,\nstill taking shape.',usage:'Turns out, curiosity\nuses a lot of tokens.'
     },
     'zh-Hans':{
       name:'Galaxy 小伙伴',greet:'点我互动，也可以拖动',hide:'收起小伙伴',restore:'叫小伙伴回来',peek:'点一下或向左拖，把我叫回来',
       help:'点击互动，拖动换位置，拖到右边缘可以探头。方向键移动，Home 键回到底边，Escape 键关闭气泡。',
-      invite:'你想听我唱歌吗？',yes:'想',okay:'可以',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
+      invite:'你想听我唱歌吗？',yes:'可以',no:'不了',pause:'暂停',resume:'继续',loading:'加载中…',stop:'结束演唱',retry:'重试',audioError:'暂时播放不了，点一下重试。',
       welcome:'哈喽，吃了吗您内？',journal:'一些还在生长的想法，\n慢慢看。',usage:'好奇心，\n原来真的会消耗 Token。'
     },
     'zh-Hant':{
       name:'Galaxy 小夥伴',greet:'點我互動，也可以拖動',hide:'收起小夥伴',restore:'叫小夥伴回來',peek:'點一下或向左拖，把我叫回來',
       help:'點擊互動，拖動換位置，拖到右邊緣可以探頭。方向鍵移動，Home 鍵回到底邊，Escape 鍵關閉氣泡。',
-      invite:'你想聽我唱歌嗎？',yes:'想',okay:'可以',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
+      invite:'你想聽我唱歌嗎？',yes:'可以',no:'不了',pause:'暫停',resume:'繼續',loading:'載入中…',stop:'結束演唱',retry:'重試',audioError:'暫時播放不了，點一下重試。',
       welcome:'嗨，食咗飯未呀？',journal:'一些還在生長的想法，\n慢慢看。',usage:'好奇心，\n原來真的會消耗 Token。'
     }
   };
@@ -130,7 +141,7 @@
     const text = copy(); root.setAttribute('aria-label',text.name);
     for (const [button,key] of [[greet,'greet'],[hide,'hide'],[restore,'restore'],[peek,'peek']]) { button.setAttribute('aria-label',text[key]); button.title = text[key]; }
     help.textContent = text.help;
-    invitationText.textContent=text.invite;songYes.textContent=text.yes;songOK.textContent=text.okay;
+    invitationText.textContent=text.invite;songYes.textContent=text.yes;songNo.textContent=text.no;
     songStop.setAttribute('aria-label',text.stop);songStop.title=text.stop;updateSongControls();
     if(invited)constrainBubble(invitation);
     if (visibleMessage) { bubble.textContent = text[visibleMessage]; constrainBubble(); }
@@ -199,19 +210,25 @@
     };
     frame=requestAnimationFrame(tick);
   }
-  function dismissInvitation(reschedule=true) {
+  function dismissInvitation() {
     clearTimeout(inviteTimer);inviteTimer=0;
-    if(invitation.contains(document.activeElement))greet.focus({preventScroll:true});
+    if(invitation.contains(document.activeElement)){
+      if(songYes.matches(':focus-visible') || songNo.matches(':focus-visible'))greet.focus({preventScroll:true});
+      else document.activeElement.blur();
+    }
     invited=false;invitation.hidden=true;root.classList.remove('is-inviting');
-    if(reschedule)nextInvite=now()+10000;
   }
   function inviteToSing() {
+    // Persist the first display, even if it is ignored. Recheck for other tabs.
+    invitationRecord=invitationRecord || readInvitation();
+    if(invitationRecord)return;
+    rememberInvitation('seen');
     idle();silence();invited=true;invitation.hidden=false;root.classList.add('is-inviting');
-    invitationText.textContent=copy().invite;constrainBubble(invitation);nextInvite=now()+10000;
+    invitationText.textContent=copy().invite;constrainBubble(invitation);
     // Leave enough time to answer and never dismiss a focused keyboard choice.
     const expire=()=>{
       if(invitation.contains(document.activeElement)){inviteTimer=setTimeout(expire,1000);return;}
-      dismissInvitation(false);
+      dismissInvitation();
     };
     inviteTimer=setTimeout(expire,6000);
   }
@@ -246,7 +263,7 @@
     song.pause();song.currentTime=0;clearTimeout(singingTimer);singingTimer=0;
     if(performing)changePerformance(false);
     if(restoreFocus){if(keyboardFocus)greet.focus({preventScroll:true});else document.activeElement?.blur();}
-    nextInvite=now()+10000;nextWalk=now()+7000;nextCoding=now()+20000;nextSip=now()+14000;
+    nextWalk=now()+7000;nextCoding=now()+20000;nextSip=now()+14000;
   }
   function playbackFailed(request) {
     if(request!==playRequest || !performing)return;
@@ -259,7 +276,7 @@
     catch { playbackFailed(request); }
   }
   function startSong() {
-    dismissInvitation();silence();
+    rememberInvitation('accepted');dismissInvitation();silence();
     if(!performing){changePerformance(true);singingPose(0);}
     songToggle.focus({preventScroll:true});playSong();
   }
@@ -267,10 +284,11 @@
     if(playPending || !song.paused){++playRequest;playPending=false;song.pause();audioPlaying=false;animateSinging();updateSongControls();}
     else playSong();
   }
-  songYes.addEventListener('click',startSong);songOK.addEventListener('click',startSong);
+  songYes.addEventListener('click',startSong);
+  songNo.addEventListener('click',()=>{rememberInvitation('declined');dismissInvitation();});
   songToggle.addEventListener('click',toggleSong);
   songStop.addEventListener('click',endSong);
-  song.addEventListener('playing',()=>{if(!performing){song.pause();return;}audioPlaying=true;playPending=false;songError=false;updateSongControls();animateSinging();});
+  song.addEventListener('playing',()=>{if(!performing){song.pause();return;}rememberInvitation('heard');audioPlaying=true;playPending=false;songError=false;updateSongControls();animateSinging();});
   song.addEventListener('pause',()=>{audioPlaying=false;playPending=false;updateSongControls();animateSinging();});
   song.addEventListener('waiting',()=>{audioPlaying=false;playPending=true;updateSongControls();animateSinging();});
   song.addEventListener('ended',endSong);
@@ -279,7 +297,7 @@
     clearTimeout(brainTimer);
     if (!blocked() && !drag) {
       const t=now();
-      if(!performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
+      if(!invitationRecord && !performing && !invited && t>=nextInvite && !contextPending && !visibleMessage)inviteToSing();
       if(state==='idle' && !invited && !performing) {
         if(!idleTimer)scheduleIdle();
         if(contextPending && t>=contextAt) { say(contextPending); contextPending=''; nextWalk=t+5500; }
@@ -397,6 +415,11 @@
   // Mouse clicks should not leave the keyboard-focus pause latched indefinitely.
   greet.addEventListener('pointerup',()=>{if(!greet.matches(':focus-visible')){greet.blur();focused=false;}});
   function resize(){const oldFloor=onFloor;stopMotion();if(state==='walk')idle();if(drag)endDrag(null,true);if(state==='peek' || state==='docking'){finishPeek();return;}if(oldFloor)y=floor();draw();if(tucked)root.style.transform='none';}
+  window.addEventListener('storage',event=>{
+    if(event.key!==inviteStorageKey || !event.newValue)return;
+    invitationRecord=event.newValue;
+    if(invited)dismissInvitation();
+  });
   window.addEventListener('resize',resize);
   window.visualViewport?.addEventListener('resize',resize);
   window.addEventListener('blur',()=>{if(drag)endDrag(null,true);stopMotion();if(state==='walk')idle();hovered=false;});
