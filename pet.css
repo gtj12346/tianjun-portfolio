@@ -1,0 +1,19 @@
+.galaxy-pet{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));width:100px;z-index:8;pointer-events:none;font-family:Arial,Helvetica,sans-serif}
+.galaxy-pet [hidden]{display:none!important}
+.pet-body{position:relative}
+.pet-greet,.pet-hide,.pet-return{pointer-events:auto;appearance:none;cursor:pointer;color:#171716}
+.pet-greet{display:block;width:100%;border:0;padding:0;background:transparent;transform-origin:50% 95%;touch-action:manipulation}
+.pet-greet img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;animation:pet-breathe 6s ease-in-out infinite;transform-origin:50% 95%}
+.pet-hide{position:absolute;top:-2px;right:-6px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #d4d3ce;border-radius:50%;background:#f8f7f3;font-size:18px;opacity:0;transition:opacity .18s}
+.galaxy-pet:hover .pet-hide,.galaxy-pet:focus-within .pet-hide{opacity:1}
+.pet-bubble{position:absolute;bottom:calc(100% + 10px);right:0;width:max-content;max-width:min(230px,calc(100vw - 40px));padding:12px 15px;border:1px solid #d4d3ce;background:#f8f7f3;color:#171716;font-size:13px;line-height:1.6;white-space:pre-line;opacity:0;transform:translateY(5px);transition:opacity .2s,transform .2s;visibility:hidden}
+.pet-bubble:after{content:'';position:absolute;right:32px;bottom:-5px;width:8px;height:8px;background:#f8f7f3;border-right:1px solid #d4d3ce;border-bottom:1px solid #d4d3ce;transform:rotate(45deg)}
+.is-chatting .pet-bubble{opacity:1;transform:translateY(0);visibility:visible}
+.pet-return{display:block;margin-left:auto;width:44px;height:44px;overflow:hidden;border:1px solid #d4d3ce;border-radius:50%;padding:3px;background:#f8f7f3}
+.pet-return img{display:block;width:36px;height:54px;max-width:none}
+.galaxy-pet button:focus-visible{outline:2px solid #171716;outline-offset:4px}
+body:has(dialog[open]) .galaxy-pet{visibility:hidden}
+@keyframes pet-breathe{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(1deg)}}
+@media(max-width:760px){.galaxy-pet{width:76px;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom))}.pet-hide{width:28px;height:28px;top:-10px;right:-2px;opacity:1}.pet-bubble{font-size:12px;max-width:min(220px,calc(100vw - 32px))}}
+@media(pointer:coarse){.pet-hide{width:44px;height:44px;top:-24px;right:-6px;opacity:1}}
+@media(prefers-reduced-motion:reduce){.pet-greet img{animation:none}.pet-bubble,.pet-hide{transition:none}}
