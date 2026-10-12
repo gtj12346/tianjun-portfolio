@@ -1,38 +1,10 @@
 {
   "schemaVersion": 2,
   "source": "TokenTracker",
-  "updatedAt": "2026-10-05T16:59:36.786011+08:00",
+  "updatedAt": "2026-10-12T10:36:38.733784+08:00",
   "timezone": "Asia/Singapore",
-  "totalTokens": 3522331486,
+  "totalTokens": 3802808269,
   "daily": [
-    {
-      "date": "2026-09-06",
-      "tokens": 34251333
-    },
-    {
-      "date": "2026-09-07",
-      "tokens": 71149184
-    },
-    {
-      "date": "2026-09-08",
-      "tokens": 24678446
-    },
-    {
-      "date": "2026-09-09",
-      "tokens": 14248540
-    },
-    {
-      "date": "2026-09-10",
-      "tokens": 70775470
-    },
-    {
-      "date": "2026-09-11",
-      "tokens": 5094422
-    },
-    {
-      "date": "2026-09-12",
-      "tokens": 0
-    },
     {
       "date": "2026-09-13",
       "tokens": 0
@@ -123,7 +95,35 @@
     },
     {
       "date": "2026-10-05",
-      "tokens": 43902868
+      "tokens": 70377028
+    },
+    {
+      "date": "2026-10-06",
+      "tokens": 20194733
+    },
+    {
+      "date": "2026-10-07",
+      "tokens": 587737
+    },
+    {
+      "date": "2026-10-08",
+      "tokens": 77377516
+    },
+    {
+      "date": "2026-10-09",
+      "tokens": 108839080
+    },
+    {
+      "date": "2026-10-10",
+      "tokens": 43276937
+    },
+    {
+      "date": "2026-10-11",
+      "tokens": 143632
+    },
+    {
+      "date": "2026-10-12",
+      "tokens": 3582988
     }
   ],
   "models": [
@@ -133,7 +133,7 @@
     },
     {
       "name": "gpt-5.5",
-      "tokens": 638201959
+      "tokens": 641141724
     },
     {
       "name": "gpt-5.6-sol",
@@ -141,15 +141,15 @@
     },
     {
       "name": "gpt-6-astra",
-      "tokens": 288537235
+      "tokens": 508602625
     },
     {
       "name": "grok-bot-cua",
-      "tokens": 139707846
+      "tokens": 139724208
     },
     {
       "name": "gpt-6-luna",
-      "tokens": 120126856
+      "tokens": 121415135
     },
     {
       "name": "swe-2-high",
@@ -157,27 +157,31 @@
     },
     {
       "name": "grok-bot-default",
-      "tokens": 56022773
+      "tokens": 60356605
+    },
+    {
+      "name": "gpt-6-sol",
+      "tokens": 46844883
     },
     {
       "name": "gpt-5.4",
       "tokens": 43802649
     },
     {
-      "name": "gpt-6-sol",
-      "tokens": 40142415
+      "name": "codex-auto-review",
+      "tokens": 22798567
+    },
+    {
+      "name": "gpt-6.1-sol",
+      "tokens": 21815098
     },
     {
       "name": "claude-opus-5-low",
       "tokens": 20108507
     },
     {
-      "name": "codex-auto-review",
-      "tokens": 19918620
-    },
-    {
       "name": "claude-opus-5-5-high",
-      "tokens": 17939882
+      "tokens": 18980791
     },
     {
       "name": "cursor-grok-4.6-high-fast",
@@ -188,12 +192,20 @@
       "tokens": 12319707
     },
     {
+      "name": "group/sol",
+      "tokens": 12198998
+    },
+    {
       "name": "claude-opus-5-5-medium",
       "tokens": 11962899
     },
     {
       "name": "unknown",
       "tokens": 11272763
+    },
+    {
+      "name": "group/sonnet",
+      "tokens": 4401848
     },
     {
       "name": "claude-4.5-sonnet",
@@ -208,6 +220,10 @@
       "tokens": 3327471
     },
     {
+      "name": "group/cheap",
+      "tokens": 2636738
+    },
+    {
       "name": "gemini-2.5-flash",
       "tokens": 639614
     },
@@ -218,6 +234,10 @@
     {
       "name": "composer-2.5-fast",
       "tokens": 199654
+    },
+    {
+      "name": "claude-sonnet-5-5-high",
+      "tokens": 157149
     },
     {
       "name": "gpt-5.3-codex",
