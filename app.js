@@ -2,11 +2,12 @@ const L = window.GalaxyLocale;
 const ui = value => L.text(value, language);
 let language = "en";
 const composition = document.querySelector('.composition');
+const compositionStatus = document.querySelector('#composition-status');
 let compositionIndex = 0;
-composition.addEventListener('click', () => {
+composition?.addEventListener('click', () => {
   compositionIndex = (compositionIndex + 1) % 3;
   composition.dataset.remix = String(compositionIndex);
-  document.querySelector('#composition-status').textContent = language !== "en" ? ui(`構圖 ${compositionIndex + 1} / 3`) : `Composition ${compositionIndex + 1} of 3`;
+  if(compositionStatus) compositionStatus.textContent = language !== "en" ? ui(`構圖 ${compositionIndex + 1} / 3`) : `Composition ${compositionIndex + 1} of 3`;
 });
 document.querySelector('#copy-email').addEventListener('click',async()=>{try{await navigator.clipboard.writeText('gaotianjun319@gmail.com');document.querySelector('#copy-status').textContent=language !== 'en' ? ui('電郵地址已複製。') : 'Email copied.';}catch{document.querySelector('#copy-status').textContent=language !== 'en' ? ui('可選取上方電郵地址複製，或點擊開啟郵件應用程式。') : 'Select the email address above to copy it, or click it to open your email app.';}});
 const projects=[
@@ -255,7 +256,7 @@ const translatedSections = [
   "精選作品 / 項目手記"
  ],
 
-].map(([selector,zh]) => {const element=document.querySelector(selector);return {element,en:element.innerHTML,zh};});
+].map(([selector,zh]) => {const element=document.querySelector(selector);return element ? {element,en:element.innerHTML,zh} : null;}).filter(Boolean);
 function applyLanguage(next, persist = true) {
  language = L.normalize(next);
  const chinese = language !== 'en';
@@ -267,8 +268,8 @@ function applyLanguage(next, persist = true) {
  if(language==='zh-CN') document.querySelector('.photo-label').textContent='别拘着了，';
  document.querySelector('.about-photo img').alt=language==='zh-CN'?'夜晚在悉尼歌剧院旁的高天骏':chinese?'夜晚在悉尼歌劇院旁的高天駿':'Tianjun by the Sydney Opera House at night';
  document.querySelector('#copy-status').textContent='';
- document.querySelector('#composition-status').textContent='';
- document.querySelector('.composition').setAttribute('aria-label',chinese?ui('切換幾何構圖'):'Remix the geometric composition');
+ if(compositionStatus) compositionStatus.textContent='';
+ composition?.setAttribute('aria-label',chinese?ui('切換幾何構圖'):'Remix the geometric composition');
  document.querySelector('#close-case').textContent=chinese?ui('關閉 ✕'):'Close ✕';
  document.querySelector('nav').setAttribute('aria-label',chinese?ui('主要導覽'):'Main navigation');
  document.querySelector('header .wordmark').setAttribute('aria-label',chinese?ui('Galaxy 首頁'):'Galaxy home');
